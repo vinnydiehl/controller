@@ -5,6 +5,8 @@ class ControllerGame
     @args = args
     @state = args.state
 
+    @ticks = 0
+
     @screen_width = args.grid.w
     @screen_height = args.grid.h
 
@@ -38,6 +40,8 @@ class ControllerGame
   end
 
   def tick
+    @ticks = Kernel.tick_count
+
     # Save this so that even if the scene changes during the tick, it is
     # still rendered before switching scenes.
     scene = @scene
