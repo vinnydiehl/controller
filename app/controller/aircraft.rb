@@ -1,36 +1,41 @@
 class Aircraft
   attr_accessor :position, :path
 
+  # Pixels/frame
+  SPEED_PX = AIRCRAFT_SPEED / 60.0
+
   def initialize
-    @position = [250, 500]
+    # Hardcoded start position for now
+    @position = [250.0, 500.0]
+    # Array of "waypoints" which connect to form the path the
+    # aircraft will follow
     @path = []
-    @speed = 50
+
+    # Degrees. No unfortunately this doesn't align with compass heading.
+    # Not that it matters it just bugs me slightly
+    # 0 = right, 90 = up, 180 = left, 270 = down
+    @heading = 0.0
   end
 
   def tick
-    return if @path.empty?
-
-    # Convert to pixels per frame (assuming 60fps)
-    movement_left = @speed / 60.0
-
-    while movement_left > 0 && @path.any?
+    if @path.any?
       target = @path.first
-      dx = target[0] - @position[0]
-      dy = target[1] - @position[1]
-      dist = Math.sqrt(dx * dx + dy * dy)
+      dist = Geometry.distance(@position, target)
 
-      if dist <= movement_left
+      if dist <= SPEED_PX
+        # Snap to waypoint
+        @heading = target.angle_from(@position)
         @position = target
+        # Next waypoint
         @path.shift
-        movement_left -= dist
       else
-        ratio = movement_left / dist
-        @position = [
-          @position[0] + dx * ratio,
-          @position[1] + dy * ratio
-        ]
-        movement_left = 0
+        # Step toward waypoint
+        @heading = target.angle_from(@position)
+        move_along_heading
       end
+    else
+      # No path, keep flying straight using last heading
+      move_along_heading
     end
   end
 
@@ -42,26 +47,24 @@ class Aircraft
     }
   end
 
-  # Returns the angle for the sprite based on which direction
-  # the aircraft is heading.
-  def angle
-    return 0 if @path.empty?
-
-    dx = @path.first[0] - @position[0]
-    dy = @path.first[1] - @position[1]
-    radians = Math.atan2(dy, dx)
-    degrees = radians * 180.0 / Math::PI
-
-    # Normalize to 0–360
-    degrees % 360
-  end
-
-  # Returns a sprite primitive Hash for the aircraft.
   def sprite
     {
       **rect,
+      # Placeholder
       path: "sprites/circle/blue.png",
-      angle: angle
+      angle: @heading,
     }
+  end
+
+  private
+
+  def move_along_heading
+    @position = Geometry.vec2_add(
+      @position,
+      [
+        Math.cos(@heading.to_radians) * SPEED_PX,
+        Math.sin(@heading.to_radians) * SPEED_PX,
+      ],
+    )
   end
 end
