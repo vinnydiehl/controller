@@ -21,12 +21,9 @@ class ControllerGame
         return
       end
 
-      last_x, last_y = ac.path.last
-      dx = coords.x - last_x
-      dy = coords.y - last_y
-      dist = Math.sqrt(dx * dx + dy * dy)
-
-      if dist >= MIN_DIST
+      # Distance comparison for smoothing of the path (points need to be
+      # at least MIN_DIST apart)
+      if Geometry.distance(coords, ac.path.last) >= MIN_DIST
         ac.path << coords
       end
     end
