@@ -21,22 +21,6 @@ class ControllerGame
   end
 
   def render_paths
-    @aircraft.each do |ac|
-      return if ac.path.empty?
-
-      previous = ac.position
-
-      ac.path.each do |(x, y)|
-        # Draw a line connecting the current point to the previous
-        # point in the path
-        @primitives << {
-          x: x, y: y,
-          x2: previous.x, y2: previous.y,
-          r: 255, g: 255, b: 255,
-        }
-
-        previous = [x, y]
-      end
-    end
+    @primitives << @aircraft.flat_map(&:path_primitives)
   end
 end

@@ -66,6 +66,18 @@ class Aircraft
     }
   end
 
+  def path_primitives
+    return if @path.empty?
+
+    [[@position.x, @position.y], *@path].each_cons(2).map do |(x, y), (x2, y2)|
+      {
+        x: x, y: y,
+        x2: x2, y2: y2,
+        **PATH_COLOR,
+      }
+    end
+  end
+
   private
 
   def move_along_heading
