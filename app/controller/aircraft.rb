@@ -5,16 +5,26 @@ class Aircraft
   SPEED_PX = AIRCRAFT_SPEED / 60.0
 
   def initialize
-    # Hardcoded start position for now
-    @position = [250.0, 500.0]
     # Array of "waypoints" which connect to form the path the
     # aircraft will follow
     @path = []
 
-    # Degrees. No unfortunately this doesn't align with compass heading.
+    # Random spawn along edges
+    screen_w, screen_h = $gtk.args.grid.w, $gtk.args.grid.h
+    side =
+
+    @position = {
+      left: [-SPAWN_PADDING, rand(screen_h)],
+      right: [screen_w + SPAWN_PADDING, rand(screen_h)],
+      bottom: [rand(screen_w), -SPAWN_PADDING],
+      top: [rand(screen_w), screen_h + SPAWN_PADDING],
+    }[[:left, :right, :top, :bottom].sample]
+
+    # Angle pointing toward center. Angle is in degrees.
+    # No unfortunately this doesn't align with compass heading.
     # Not that it matters it just bugs me slightly
     # 0 = right, 90 = up, 180 = left, 270 = down
-    @heading = 0.0
+    @heading = @position.angle_to([screen_w / 2, screen_h / 2])
   end
 
   def tick
