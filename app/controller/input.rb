@@ -1,11 +1,12 @@
 class ControllerGame
   def handle_mouse_inputs
     if @mouse.key_down.left
-      return unless ac = @aircraft.find { |a| @mouse.intersect_rect?(a.rect) }
+      return unless (@aircraft_redirecting = @aircraft.find do |ac|
+        @mouse.intersect_rect?(ac.rect)
+      end)
 
-      @aircraft_redirecting = ac
       # Clear path if there is one
-      ac.path = []
+      @aircraft_redirecting.path = []
     end
 
     if @mouse.key_held.left && (ac = @aircraft_redirecting)
