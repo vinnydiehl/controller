@@ -4,11 +4,17 @@ class ControllerGame
       return unless ac = @aircraft.find { |a| @mouse.intersect_rect?(a.rect) }
 
       @aircraft_redirecting = ac
-      ac.path = [mouse_coords]
+      # Clear path if there is one
+      ac.path = []
     end
 
     if @mouse.key_held.left && (ac = @aircraft_redirecting)
       coords = mouse_coords
+
+      # By not allowing a path to begin until the mouse leaves the edge of
+      # the aircraft sprite, we fix that little jitter that happens, especially
+      # if the click originated from behind the center of the sprite.
+      return if coords.inside_rect?(ac.rect) && ac.path.empty?
 
       if ac.path.empty?
         ac.path << coords
