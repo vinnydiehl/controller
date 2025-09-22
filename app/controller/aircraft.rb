@@ -9,25 +9,33 @@ class Aircraft
     # aircraft will follow
     @path = []
 
-    # Random spawn along edges
-    screen_w, screen_h = $gtk.args.grid.w, $gtk.args.grid.h
-    side =
+    @screen = $gtk.args.grid.rect
 
+    # Random spawn along edges
     @position = {
-      left: [-SPAWN_PADDING, rand(screen_h)],
-      right: [screen_w + SPAWN_PADDING, rand(screen_h)],
-      bottom: [rand(screen_w), -SPAWN_PADDING],
-      top: [rand(screen_w), screen_h + SPAWN_PADDING],
+      left: [-SPAWN_PADDING, rand(@screen.h)],
+      right: [@screen.w + SPAWN_PADDING, rand(@screen.h)],
+      bottom: [rand(@screen.w), -SPAWN_PADDING],
+      top: [rand(@screen.w), @screen.h + SPAWN_PADDING],
     }[[:left, :right, :top, :bottom].sample]
 
     # Angle pointing toward center. Angle is in degrees.
     # No unfortunately this doesn't align with compass heading.
     # Not that it matters it just bugs me slightly
     # 0 = right, 90 = up, 180 = left, 270 = down
-    @heading = @position.angle_to([screen_w / 2, screen_h / 2])
+    @heading = @position.angle_to([@screen.w / 2, @screen.h / 2])
+
+    # The aircraft begins off the screen. This will be set to true
+    # once it enters the screen, and will be used in the future for
+    # turning the aircraft around if it hits the edge of the screen.
+    @offscreen = true
   end
 
   def tick
+    if @offscreen && @position.inside_rect?(@screen)
+      @offscreen = false
+    end
+
     if @path.any?
       target = @path.first
       dist = Geometry.distance(@position, target)
@@ -47,6 +55,8 @@ class Aircraft
       # No path, keep flying straight using last heading
       move_along_heading
     end
+
+    handle_screen_edge_collision
   end
 
   def rect
@@ -88,5 +98,41 @@ class Aircraft
         Math.sin(@heading.to_radians) * SPEED_PX,
       ],
     )
+  end
+
+  def handle_screen_edge_collision
+    return if @offscreen
+
+    bounced = false
+
+    # Left/right walls
+    if @position.x <= 0
+      @position.x = 0
+      @heading = 180 - @heading
+      bounced = true
+    elsif @position.x >= @screen.w
+      @position.x = @screen.w
+      @heading = 180 - @heading
+      bounced = true
+    end
+
+    # Top/bottom walls
+    if @position.y <= 0
+      @position.y = 0
+      @heading = -@heading
+      bounced = true
+    elsif @position.y >= @screen.h
+      @position.y = @screen.h
+      @heading = -@heading
+      bounced = true
+    end
+
+    if bounced
+      # Normalize angle
+      @heading %= 360
+      # If path extends off the screen it will get stuck on the edge,
+      # so reset it
+      @path = []
+    end
   end
 end
