@@ -3,6 +3,8 @@ class Aircraft
 
   # Pixels/frame
   SPEED_PX = AIRCRAFT_SPEED / 60.0
+  # Degrees/frame for smoothing sprite angle
+  ANGLE_SMOOTHING_RATE = 5.0
 
   def initialize
     # Array of "waypoints" which connect to form the path the
@@ -13,17 +15,23 @@ class Aircraft
 
     # Random spawn along edges
     @position = {
-      left: [-SPAWN_PADDING, rand(@screen.h)],
-      right: [@screen.w + SPAWN_PADDING, rand(@screen.h)],
+      left:   [-SPAWN_PADDING, rand(@screen.h)],
+      right:  [@screen.w + SPAWN_PADDING, rand(@screen.h)],
       bottom: [rand(@screen.w), -SPAWN_PADDING],
-      top: [rand(@screen.w), @screen.h + SPAWN_PADDING],
+      top:    [rand(@screen.w), @screen.h + SPAWN_PADDING],
     }[[:left, :right, :top, :bottom].sample]
 
-    # Angle pointing toward center. Angle is in degrees.
-    # No unfortunately this doesn't align with compass heading.
-    # Not that it matters it just bugs me slightly
+    # Direction the aircraft is moving, in degrees.
+    # No unfortunately this doesn't align with compass degrees.
+    # Not that it matters it just bugs me slightly...
+    #
     # 0 = right, 90 = up, 180 = left, 270 = down
-    @heading = @position.angle_to([@screen.w / 2, @screen.h / 2])
+    #
+    # Spawns pointing towards the center.
+    @course = @position.angle_to([@screen.w / 2, @screen.h / 2])
+    # Angle the front of the aircraft sprite is facing, eases
+    # towards the course if they become offset.
+    @heading = @course
 
     # The aircraft begins off the screen. This will be set to true
     # once it enters the screen, and will be used in the future for
@@ -42,13 +50,13 @@ class Aircraft
 
       if dist <= SPEED_PX
         # Snap to waypoint
-        @heading = target.angle_from(@position)
+        @course = target.angle_from(@position)
         @position = target
         # Next waypoint
         @path.shift
       else
         # Step toward waypoint
-        @heading = target.angle_from(@position)
+        @course = target.angle_from(@position)
         move_along_heading
       end
     else
@@ -57,6 +65,7 @@ class Aircraft
     end
 
     handle_screen_edge_collision
+    ease_heading
   end
 
   def rect
@@ -94,8 +103,8 @@ class Aircraft
     @position = Geometry.vec2_add(
       @position,
       [
-        Math.cos(@heading.to_radians) * SPEED_PX,
-        Math.sin(@heading.to_radians) * SPEED_PX,
+        Math.cos(@course.to_radians) * SPEED_PX,
+        Math.sin(@course.to_radians) * SPEED_PX,
       ],
     )
   end
@@ -108,31 +117,45 @@ class Aircraft
     # Left/right walls
     if @position.x <= 0
       @position.x = 0
-      @heading = 180 - @heading
+      @course = 180 - @course
       bounced = true
     elsif @position.x >= @screen.w
       @position.x = @screen.w
-      @heading = 180 - @heading
+      @course = 180 - @course
       bounced = true
     end
 
     # Top/bottom walls
     if @position.y <= 0
       @position.y = 0
-      @heading = -@heading
+      @course = -@course
       bounced = true
     elsif @position.y >= @screen.h
       @position.y = @screen.h
-      @heading = -@heading
+      @course = -@course
       bounced = true
     end
 
     if bounced
       # Normalize angle
-      @heading %= 360
+      @course %= 360
       # If path extends off the screen it will get stuck on the edge,
       # so reset it
       @path = []
+    end
+  end
+
+  # Ease the heading toward the course
+  def ease_heading
+    delta = (@course - @heading) % 360
+    # Shortest path
+    delta -= 360 if delta > 180
+
+    if delta.abs <= ANGLE_SMOOTHING_RATE
+      @heading = @course
+    else
+      @heading += ANGLE_SMOOTHING_RATE * (delta.positive? ? 1 : -1)
+      @heading %= 360
     end
   end
 end
