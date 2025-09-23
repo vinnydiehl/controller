@@ -92,6 +92,7 @@ class Aircraft
       {
         x: x, y: y,
         x2: x2, y2: y2,
+        scale_quality_enum: 2,
         **PATH_COLOR,
       }
     end
