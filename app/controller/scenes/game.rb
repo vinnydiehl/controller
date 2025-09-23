@@ -22,5 +22,7 @@ class ControllerGame
     end
 
     @aircraft.each(&:tick)
+
+    @runways.each { |r| r.heading += 1 }
   end
 end
