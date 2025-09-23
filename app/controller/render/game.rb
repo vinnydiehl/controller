@@ -1,6 +1,7 @@
 class ControllerGame
   def render_game
     render_background
+    render_runways
     render_paths
     render_aircraft
   end
@@ -14,10 +15,12 @@ class ControllerGame
     }
   end
 
+  def render_runways
+    @primitives << @runways.map(&:sprite)
+  end
+
   def render_aircraft
-    @aircraft.each do |ac|
-      @primitives << ac.sprite
-    end
+    @primitives << @aircraft.map(&:sprite)
   end
 
   def render_paths

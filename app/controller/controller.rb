@@ -9,6 +9,8 @@ class ControllerGame
 
     @screen_width = args.grid.w
     @screen_height = args.grid.h
+    @cx = args.grid.w / 2
+    @cy = args.grid.h / 2
 
     @inputs = args.inputs
     @mouse = args.inputs.mouse

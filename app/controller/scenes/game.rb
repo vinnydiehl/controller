@@ -1,9 +1,13 @@
 class ControllerGame
   def game_init
     @aircraft = []
+    @runways = []
 
     # Seconds between aircraft spawns
     @spawn_interval = 10
+
+    # Test runway
+    @runways << Runway.new("12", 120, 20, 200, [@cx, @cy])
   end
 
   def game_tick
