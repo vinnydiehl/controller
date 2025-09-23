@@ -9,7 +9,11 @@ class ControllerGame
   def game_tick
     handle_mouse_inputs
 
-    if @ticks % @spawn_interval.seconds == 0
+    # For now, rather than spawning at intervals, just spawn
+    # when I hit space for easier development
+    #
+    # if @ticks % @spawn_interval.seconds == 0
+    if @kb.key_down.space
       @aircraft << Aircraft.new
     end
 
