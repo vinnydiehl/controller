@@ -1,12 +1,13 @@
 class Runway
-  attr_accessor :heading, :position
+  attr_accessor :heading, :position, :type
 
-  def initialize(name, heading, width, length, position)
+  def initialize(name, heading, width, length, position, type)
     @name = name
     @heading = heading
     @width = width
     @length = length
     @position = position
+    @type = type
 
     @mouse = $gtk.args.inputs.mouse
 
@@ -19,6 +20,20 @@ class Runway
       x: 0, y: 0,
       w: length, h: width,
       r: 150, g: 150, b: 150,
+    }
+    border_color = case type
+    when :blue
+      { r: 0, g: 0, b: 255 }
+    when :yellow
+      { r: 255, g: 255, b: 0 }
+    when :orange
+      { r: 255, g: 92, b: 0 }
+    end
+    @outputs[:"runway_#{name}"].primitives << {
+      primitive_marker: :border,
+      x: 0, y: 0,
+      w: length, h: width,
+      **border_color,
     }
   end
 

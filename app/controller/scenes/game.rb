@@ -7,7 +7,9 @@ class ControllerGame
     @spawn_interval = 10
 
     # Test runway
-    @runways << Runway.new("12", 120, 20, 200, [@cx, @cy])
+    @runways << Runway.new("12", 120, 20, 200, [@cx, @cy], :blue)
+    @runways << Runway.new("04", 40, 20, 170, [@cx - 100, @cy], :yellow)
+    @runways << Runway.new("H1", 0, 20, 20, [@cx + 300, @cy - 100], :orange)
   end
 
   def game_tick

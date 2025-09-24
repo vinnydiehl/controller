@@ -20,7 +20,7 @@ class ControllerGame
       return if coords.inside_rect?(ac.rect) && ac.path.empty?
 
       @runways.each do |runway|
-        if runway.mouse_in_tdz?
+        if runway.mouse_in_tdz? && ac.runway_type == runway.type
           final_heading = ac.path[-FINAL_APPROACH_BUFFER].angle_to(runway.position)
           alignment = (runway.heading - final_heading).abs
 
