@@ -21,9 +21,7 @@ class Runway
   end
 
   def sprite
-    tdz_radius = @width / 2
-    tdz_x = @position.x + Math.cos(@heading.to_radians) * tdz_radius
-    tdz_y = @position.y + Math.sin(@heading.to_radians) * tdz_radius
+    anchor_x = (@width / 2) / @length
 
     [
       {
@@ -31,14 +29,15 @@ class Runway
         w: @length, h: @width,
         angle: @heading,
         path: :"runway_#{@name}",
-        anchor_x: 0,
+        # Anchor at the touchdown zone center
+        anchor_x: anchor_x,
         anchor_y: 0.5,
-        angle_anchor_x: 0,
+        angle_anchor_x: anchor_x,
         angle_anchor_y: 0.5,
       },
-      # Touchdown zone (this is just for testing)
+      # Touchdown zone (for testing)
       {
-        x: tdz_x, y: tdz_y,
+        x: @position.x, y: @position.y,
         w: @width, h: @width,
         path: "sprites/circle/blue.png",
         r: 255, g: 0, b: 0,
