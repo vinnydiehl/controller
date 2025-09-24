@@ -1,7 +1,29 @@
+AIRCRAFT_TYPES = [
+  {
+    type: :widebody,
+    speed: 30,
+    runway: :blue,
+    vtol: false,
+    sprite: "sprites/circle/blue.png",
+  },
+  {
+    type: :single_engine_piston,
+    speed: 15,
+    runway: :yellow,
+    vtol: false,
+    sprite: "sprites/circle/yellow.png",
+  },
+  {
+    type: :helicopter,
+    speed: 10,
+    runway: :orange,
+    vtol: true,
+    sprite: "sprites/circle/orange.png",
+  },
+]
+
 AIRCRAFT_SIZE = 32
 AIRCRAFT_RADIUS = AIRCRAFT_SIZE / 2
-# Pixels/second
-AIRCRAFT_SPEED = 25
 
 # How far off the screen an aircraft spawns
 SPAWN_PADDING = AIRCRAFT_SIZE * 3

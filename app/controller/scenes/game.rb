@@ -18,7 +18,7 @@ class ControllerGame
     #
     # if @ticks % @spawn_interval.seconds == 0
     if @kb.key_down.space
-      @aircraft << Aircraft.new
+      @aircraft << Aircraft.new(**(AIRCRAFT_TYPES.sample))
     end
 
     @aircraft.each(&:tick)

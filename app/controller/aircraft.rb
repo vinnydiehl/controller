@@ -1,12 +1,17 @@
 class Aircraft
-  attr_accessor :position, :path, :cleared_to_land, :landed
+  attr_accessor *%i[position path cleared_to_land landed
+                    type speed runway_type vtol]
 
-  # Pixels/frame
-  SPEED_PX = AIRCRAFT_SPEED / 60.0
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
 
-  def initialize
+  def initialize(type:, speed:, runway:, vtol:, sprite:)
+    @type, @speed, @runway_type, @vtol, @sprite_path =
+      type, speed, runway, vtol, sprite
+
+    # Pixels/frame
+    @speed_px = @speed / 60.0
+
     # Array of "waypoints" which connect to form the path the
     # aircraft will follow
     @path = []
@@ -51,7 +56,7 @@ class Aircraft
       target = @path.first
       dist = Geometry.distance(@position, target)
 
-      if dist <= SPEED_PX
+      if dist <= @speed_px
         # Snap to waypoint
         @course = target.angle_from(@position)
         @position = target
@@ -86,8 +91,7 @@ class Aircraft
   def sprite
     {
       **rect,
-      # Placeholder
-      path: "sprites/circle/blue.png",
+      path: @sprite_path,
       angle: @heading,
     }
   end
@@ -111,8 +115,8 @@ class Aircraft
     @position = Geometry.vec2_add(
       @position,
       [
-        Math.cos(@course.to_radians) * SPEED_PX,
-        Math.sin(@course.to_radians) * SPEED_PX,
+        Math.cos(@course.to_radians) * @speed_px,
+        Math.sin(@course.to_radians) * @speed_px,
       ],
     )
   end
