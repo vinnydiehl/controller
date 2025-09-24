@@ -23,27 +23,16 @@ class Runway
   def sprite
     anchor_x = (@width / 2) / @length
 
-    [
-      {
-        x: @position.x, y: @position.y,
-        w: @length, h: @width,
-        angle: @heading,
-        path: :"runway_#{@name}",
-        # Anchor at the touchdown zone center
-        anchor_x: anchor_x,
-        anchor_y: 0.5,
-        angle_anchor_x: anchor_x,
-        angle_anchor_y: 0.5,
-      },
-      # Touchdown zone (for testing)
-      {
-        x: @position.x, y: @position.y,
-        w: @width, h: @width,
-        path: "sprites/circle/blue.png",
-        r: 255, g: 0, b: 0,
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-      },
-    ]
+    {
+      x: @position.x, y: @position.y,
+      w: @length, h: @width,
+      angle: @heading,
+      path: :"runway_#{@name}",
+      # Anchor at the touchdown zone center
+      anchor_x: anchor_x,
+      anchor_y: 0.5,
+      angle_anchor_x: anchor_x,
+      angle_anchor_y: 0.5,
+    }
   end
 end
