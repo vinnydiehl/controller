@@ -1,5 +1,5 @@
 class Aircraft
-  attr_accessor :position, :path, :cleared_to_land
+  attr_accessor :position, :path, :cleared_to_land, :landed
 
   # Pixels/frame
   SPEED_PX = AIRCRAFT_SPEED / 60.0
@@ -34,6 +34,7 @@ class Aircraft
     @heading = @course
 
     @cleared_to_land = false
+    @landed = false
 
     # The aircraft begins off the screen. This will be set to true
     # once it enters the screen, and will be used in the future for
@@ -60,6 +61,10 @@ class Aircraft
         # Step toward waypoint
         @course = target.angle_from(@position)
         move_along_heading
+      end
+
+      if @path.empty? && @cleared_to_land
+        @landed = true
       end
     else
       # No path, keep flying straight using last heading

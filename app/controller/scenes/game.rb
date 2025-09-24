@@ -22,5 +22,6 @@ class ControllerGame
     end
 
     @aircraft.each(&:tick)
+    @aircraft.reject!(&:landed)
   end
 end
