@@ -6,10 +6,31 @@ class ControllerGame
     # Seconds between aircraft spawns
     @spawn_interval = 10
 
-    # Test runway
-    @runways << Runway.new("12", 120, 20, 200, [@cx, @cy], :blue)
-    @runways << Runway.new("04", 40, 20, 170, [@cx - 100, @cy], :yellow)
-    @runways << Runway.new("H1", 0, 20, 20, [@cx + 300, @cy - 100], :orange)
+    # Test map
+    @map = Map.new(name: "Test", image: "data/maps/test/image.png")
+    @map.runways = [
+      Runway.new(
+        type: :blue,
+        name: "12",
+        position: [@cx, @cy],
+        tdz_radius: 10,
+        heading: 120,
+      ),
+      Runway.new(
+        type: :yellow,
+        name: "04",
+        position: [@cx - 100, @cy],
+        tdz_radius: 10,
+        heading: 40,
+      ),
+      Runway.new(
+        type: :orange,
+        name: "H1",
+        position: [@cx + 300, @cy - 100],
+        tdz_radius: 20,
+        heading: 0,
+      ),
+    ]
   end
 
   def game_tick

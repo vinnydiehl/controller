@@ -1,7 +1,9 @@
 SCENES = %w[game].freeze
 
+require "lib/json.rb"
+
 %w[constants colors controller
-   aircraft input runway].each { |f| require "app/controller/#{f}.rb" }
+   aircraft input map runway].each { |f| require "app/controller/#{f}.rb" }
 
 %w[scenes render].each { |dir| SCENES.each { |f| require "app/controller/#{dir}/#{f}.rb" } }
 

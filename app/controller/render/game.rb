@@ -1,22 +1,12 @@
 class ControllerGame
   def render_game
-    render_background
-    render_runways
+    render_map
     render_paths
     render_aircraft
   end
 
-  def render_background
-    @primitives << {
-      primitive_marker: :solid,
-      x: 0, y: 0,
-      w: @screen_width, h: @screen_height,
-      **BACKGROUND_COLOR,
-    }
-  end
-
-  def render_runways
-    @primitives << @runways.map(&:sprite)
+  def render_map
+    @primitives << @map.sprite
   end
 
   def render_aircraft
