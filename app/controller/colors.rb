@@ -5,3 +5,6 @@ BACKGROUND_COLOR = {
 PATH_COLOR = {
   r: 255, g: 255, b: 255,
 }
+CLEARED_TO_LAND_PATH_COLOR = {
+  r: 255, g: 0, b: 0,
+}

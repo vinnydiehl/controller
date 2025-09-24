@@ -1,5 +1,5 @@
 class Aircraft
-  attr_accessor :position, :path
+  attr_accessor :position, :path, :cleared_to_land
 
   # Pixels/frame
   SPEED_PX = AIRCRAFT_SPEED / 60.0
@@ -32,6 +32,8 @@ class Aircraft
     # Angle the front of the aircraft sprite is facing, eases
     # towards the course if they become offset.
     @heading = @course
+
+    @cleared_to_land = false
 
     # The aircraft begins off the screen. This will be set to true
     # once it enters the screen, and will be used in the future for
@@ -93,7 +95,7 @@ class Aircraft
         x: x, y: y,
         x2: x2, y2: y2,
         scale_quality_enum: 2,
-        **PATH_COLOR,
+        **(@cleared_to_land ? CLEARED_TO_LAND_PATH_COLOR : PATH_COLOR),
       }
     end
   end

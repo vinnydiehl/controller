@@ -1,5 +1,5 @@
 class Runway
-  attr_accessor :heading
+  attr_accessor :heading, :position
 
   def initialize(name, heading, width, length, position)
     @name = name
@@ -7,6 +7,8 @@ class Runway
     @width = width
     @length = length
     @position = position
+
+    @mouse = $gtk.args.inputs.mouse
 
     # Temporary sprite (just a gray solid render target)
     @outputs = $gtk.args.outputs
@@ -34,5 +36,9 @@ class Runway
       angle_anchor_x: anchor_x,
       angle_anchor_y: 0.5,
     }
+  end
+
+  def mouse_in_tdz?
+    @mouse.inside_circle?(@position, @width / 2)
   end
 end

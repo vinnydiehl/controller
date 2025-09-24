@@ -7,15 +7,26 @@ class ControllerGame
 
       # Clear path if there is one
       @aircraft_redirecting.path = []
+      # Cancel landing clearance
+      @aircraft_redirecting.cleared_to_land = false
     end
 
-    if @mouse.key_held.left && (ac = @aircraft_redirecting)
+    if @mouse.key_held.left && (ac = @aircraft_redirecting) && !ac.cleared_to_land
       coords = mouse_coords
 
       # By not allowing a path to begin until the mouse leaves the edge of
       # the aircraft sprite, we fix that little jitter that happens, especially
       # if the click originated from behind the center of the sprite.
       return if coords.inside_rect?(ac.rect) && ac.path.empty?
+
+      @runways.each do |runway|
+        if runway.mouse_in_tdz?
+          ac.cleared_to_land = true
+          ac.path.take(5)
+          ac.path << runway.position
+          return
+        end
+      end
 
       if ac.path.empty?
         ac.path << coords
