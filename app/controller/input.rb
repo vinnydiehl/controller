@@ -24,7 +24,7 @@ class ControllerGame
           final_heading = ac.path[-FINAL_APPROACH_BUFFER].angle_to(runway.position)
           alignment = (runway.heading - final_heading).abs
 
-          if alignment <= FINAL_APPROACH_TOLERANCE
+          if ac.vtol || alignment <= FINAL_APPROACH_TOLERANCE
             ac.cleared_to_land = true
             ac.path.take(FINAL_APPROACH_BUFFER)
             ac.path << runway.position
