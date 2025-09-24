@@ -21,10 +21,15 @@ class ControllerGame
 
       @runways.each do |runway|
         if runway.mouse_in_tdz?
-          ac.cleared_to_land = true
-          ac.path.take(5)
-          ac.path << runway.position
-          return
+          final_heading = ac.path[-FINAL_APPROACH_BUFFER].angle_to(runway.position)
+          alignment = (runway.heading - final_heading).abs
+
+          if alignment <= FINAL_APPROACH_TOLERANCE
+            ac.cleared_to_land = true
+            ac.path.take(FINAL_APPROACH_BUFFER)
+            ac.path << runway.position
+            return
+          end
         end
       end
 
