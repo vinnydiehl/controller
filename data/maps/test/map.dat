@@ -1,0 +1,36 @@
+{
+  "name": "Test",
+  "image": "data/maps/test/image.png",
+  "runways": [
+    {
+      "type": {"@@jm:symbol":"blue"},
+      "name": "12",
+      "position": [
+        640.0,
+        360.0
+      ],
+      "tdz_radius": 10,
+      "heading": 120
+    },
+    {
+      "type": {"@@jm:symbol":"yellow"},
+      "name": "04",
+      "position": [
+        540.0,
+        360.0
+      ],
+      "tdz_radius": 10,
+      "heading": 40
+    },
+    {
+      "type": {"@@jm:symbol":"orange"},
+      "name": "H1",
+      "position": [
+        940.0,
+        260.0
+      ],
+      "tdz_radius": 20,
+      "heading": 0
+    }
+  ]
+}

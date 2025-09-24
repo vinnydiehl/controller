@@ -11,4 +11,14 @@ class Runway
   def mouse_in_tdz?
     @mouse.inside_circle?(@position, @tdz_radius)
   end
+
+  def to_h
+    {
+      type: @type,
+      name: @name,
+      position: @position,
+      tdz_radius: @tdz_radius,
+      heading: @heading,
+    }
+  end
 end

@@ -14,4 +14,8 @@ class Map
       path: image,
     }
   end
+
+  def to_h
+    { name: @name, image: @image, runways: @runways.map(&:to_h) }
+  end
 end
