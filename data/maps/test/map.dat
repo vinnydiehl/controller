@@ -1,6 +1,5 @@
 {
   "name": "Test",
-  "image": "data/maps/test/image.png",
   "runways": [
     {
       "type": {"@@jm:symbol":"blue"},

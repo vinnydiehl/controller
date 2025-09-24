@@ -5,10 +5,6 @@ class ControllerGame
     render_aircraft
   end
 
-  def render_map
-    @primitives << @map.sprite
-  end
-
   def render_aircraft
     @primitives << @aircraft.map(&:sprite)
   end
