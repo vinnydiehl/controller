@@ -20,10 +20,10 @@ class Aircraft
 
     # Random spawn along edges
     @position = {
-      left:   [-SPAWN_PADDING, rand(@screen.h)],
-      right:  [@screen.w + SPAWN_PADDING, rand(@screen.h)],
+      left: [-SPAWN_PADDING, rand(@screen.h)],
+      right: [@screen.w + SPAWN_PADDING, rand(@screen.h)],
       bottom: [rand(@screen.w), -SPAWN_PADDING],
-      top:    [rand(@screen.w), @screen.h + SPAWN_PADDING],
+      top: [rand(@screen.w), @screen.h + SPAWN_PADDING],
     }[[:left, :right, :top, :bottom].sample]
 
     # Direction the aircraft is moving, in degrees.

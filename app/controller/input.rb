@@ -28,6 +28,7 @@ class ControllerGame
             ac.cleared_to_land = true
             ac.path.take(FINAL_APPROACH_BUFFER)
             ac.path << runway.position
+
             return
           end
         end
