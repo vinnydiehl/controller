@@ -37,3 +37,8 @@ MIN_DIST = 8.0
 FINAL_APPROACH_BUFFER = 5
 # +/- degrees for acceptable final approach runway alignment
 FINAL_APPROACH_TOLERANCE = 45
+
+# Map editor stuff
+KEY_HOLD_DELAY = 0.5.seconds
+DEFAULT_TDZ_RADIUS = 10
+DEFAULT_RWY_HEADING = 0

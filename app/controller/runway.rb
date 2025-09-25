@@ -1,5 +1,5 @@
 class Runway
-  attr_accessor :heading, :position, :type
+  attr_accessor *%i[type name position tdz_radius heading]
 
   def initialize(type:, name:, position:, tdz_radius:, heading:)
     @type, @name, @position, @tdz_radius, @heading =
