@@ -51,6 +51,8 @@ class ControllerGame
       @map_input_box,
       @map_name_input,
       @map_id_input,
+      # Border
+      @map_input_box.merge(primitive_marker: :border, **BORDER_COLOR),
     ]
 
     # Labels
@@ -69,6 +71,8 @@ class ControllerGame
       @runway_input_box,
       @runway_name_input,
       @runway_type_buttons,
+      # Border
+      @runway_input_box.merge(primitive_marker: :border, **BORDER_COLOR),
     ]
 
     # Border around active runway type
