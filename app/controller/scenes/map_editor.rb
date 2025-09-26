@@ -8,6 +8,8 @@ KB_DIRECTIONS = {
 
 class ControllerGame
   def map_editor_init
+    load_map("test")
+
     @runway_held = nil
     @active_runway = nil
 
@@ -41,7 +43,7 @@ class ControllerGame
       on_clicked: lambda do |_mouse, input|
         input.focus
       end,
-      max_length: 40
+      max_length: 40,
     )
     @runway_type_buttons = RUNWAY_COLORS.map.with_index do |(type, color), i|
       Layout.rect(
@@ -52,14 +54,83 @@ class ControllerGame
       ).merge(primitive_marker: :solid, type: type, **color)
     end
 
-    load_map("test")
+    @map_input_box = Layout.rect(
+      row: -0.5,
+      col: 0,
+      w: 4,
+      h: 1,
+      include_row_gutter: true,
+      include_col_gutter: true
+    ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
+    @map_name_input = Input::Text.new(
+      **Layout.rect(
+        row: -0.5,
+        col: 1.5,
+        w: 2.5,
+        h: 0.5,
+      ),
+      prompt: "Name",
+      value: @map.name,
+      size_px: 20,
+      **INPUT_COLORS,
+      on_unhandled_key: lambda do |key, input|
+        case key
+        when :enter
+          input.blur
+        when :tab
+          input.blur
+          @map_id_input.focus
+          @map_id_input.select_all
+        end
+      end,
+      on_clicked: lambda do |_mouse, input|
+        input.focus
+        @map_id_input.blur
+      end,
+      max_length: 40,
+    )
+    @map_id_input = Input::Text.new(
+      **Layout.rect(
+        row: 0,
+        col: 1.5,
+        w: 2.5,
+        h: 0.5,
+      ),
+      prompt: "ID",
+      value: @map.id,
+      size_px: 20,
+      **INPUT_COLORS,
+      on_unhandled_key: lambda do |key, input|
+        case key
+        when :enter
+          input.blur
+        end
+      end,
+      on_clicked: lambda do |_mouse, input|
+        input.focus
+        @map_name_input.blur
+      end,
+      max_length: 40,
+    )
   end
 
   def map_editor_tick
-    @runway_name_input.tick
-    # Edit runway name immediately on change
-    if @active_runway && @runway_name_input.value_changed?
-      @active_runway.name = @runway_name_input.value.to_s
+    @map_name_input.tick
+    @map_id_input.tick
+    # Edit map name/ID immediately on change
+    if @map_name_input.value_changed?
+      @map.name = @map_name_input.value.to_s
+    end
+    if @map_id_input.value_changed?
+      @map.id = @map_id_input.value.to_s
+    end
+
+    if @active_runway
+      @runway_name_input.tick
+      # Edit runway name immediately on change
+      if @runway_name_input.value_changed?
+        @active_runway.name = @runway_name_input.value.to_s
+      end
     end
 
     @hold_delay -= 1
@@ -68,6 +139,14 @@ class ControllerGame
   end
 
   def handle_map_editor_mouse_inputs
+    if @mouse.intersect_rect?(@map_input_box)
+      return
+    elsif @mouse.key_down.left
+      # Clicking outside the box blurs the inputs
+      @map_name_input.blur
+      @map_id_input.blur
+    end
+
     if @active_runway
       # Runway type button click
       if @mouse.key_down.left &&

@@ -1,5 +1,6 @@
 {
   "name": "Test",
+  "id": "test",
   "runways": [
     {
       "type": {"@@jm:symbol":"blue"},

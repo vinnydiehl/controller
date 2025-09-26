@@ -3,6 +3,7 @@ class ControllerGame
     render_map
     render_runway_markers
 
+    render_map_input
     if @active_runway
       render_runway_input
     end
@@ -43,6 +44,24 @@ class ControllerGame
       **(active?(runway) ? MAP_EDITOR_ACTIVE_COLOR : RUNWAY_COLORS[runway.type]),
       a: 150,
     }
+  end
+
+  def render_map_input
+    @primitives << [
+      @map_input_box,
+      @map_name_input,
+      @map_id_input,
+    ]
+
+    # Labels
+    { -1 => "Name:", -0.5 => "ID:" }.each do |row, text|
+      @primitives << Layout.rect(row: row, col: 1.3).merge(
+        text: text,
+        anchor_x: 1,
+        anchor_y: 0,
+        **MAP_EDITOR_INPUT_TEXT_COLOR,
+      )
+    end
   end
 
   def render_runway_input
