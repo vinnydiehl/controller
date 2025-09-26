@@ -2,7 +2,14 @@ class ControllerGame
   def render_map_editor
     render_map
     render_runway_markers
-    render_heading_guide
+
+    if @active_runway
+      render_runway_input
+    end
+
+    if @heading_start_point
+      render_heading_guide
+    end
   end
 
   def render_runway_markers
@@ -20,7 +27,8 @@ class ControllerGame
       w: size, h: size,
       anchor_x: 0.5, anchor_y: 0.5,
       path: "sprites/map_editor/circle.png",
-      **(active?(runway) ? MAP_EDITOR_ACTIVE_COLOR : MAP_EDITOR_RUNWAY_COLOR),
+      **(active?(runway) ? MAP_EDITOR_ACTIVE_COLOR : RUNWAY_COLORS[runway.type]),
+      a: 150,
     }
   end
 
@@ -32,13 +40,26 @@ class ControllerGame
       angle_anchor_x: 0, angle_anchor_y: 0.5,
       angle: runway.heading,
       path: "sprites/map_editor/arrow.png",
-      **(active?(runway) ? MAP_EDITOR_ACTIVE_COLOR : MAP_EDITOR_RUNWAY_COLOR),
+      **(active?(runway) ? MAP_EDITOR_ACTIVE_COLOR : RUNWAY_COLORS[runway.type]),
+      a: 150,
     }
   end
 
-  def render_heading_guide
-    return unless @heading_start_point
+  def render_runway_input
+    @primitives << @runway_input_box
+    @primitives << @runway_name_input
 
+    { 11 => "Name:", 11.5 => "Color:" }.each do |row, text|
+      @primitives << Layout.rect(row: row, col: 0.75).merge(
+        text: text,
+        anchor_x: 0.5,
+        anchor_y: 0,
+        **MAP_EDITOR_INPUT_TEXT_COLOR,
+      )
+    end
+  end
+
+  def render_heading_guide
     @primitives << {
       x: @heading_start_point.x,
       y: @heading_start_point.y,

@@ -13,17 +13,57 @@ class ControllerGame
 
     @hold_delay = 0
 
+    @runway_input_box = Layout.rect(
+      row: 11.5,
+      col: 0,
+      w: 4,
+      h: 1,
+      include_row_gutter: true,
+      include_col_gutter: true
+    ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
+    @runway_name_input = Input::Text.new(
+      **Layout.rect(
+        row: 11.5,
+        col: 1.5,
+        w: 2.5,
+        h: 0.5,
+      ),
+      prompt: "Name",
+      value: @active_runway.name,
+      size_px: 20,
+      **INPUT_COLORS,
+      on_unhandled_key: lambda do |key, input|
+        case key
+        when :enter
+          input.blur
+        end
+      end,
+      on_clicked: lambda do |_mouse, input|
+        input.focus
+      end,
+      max_length: 40
+    )
+
     load_map("test")
   end
 
   def map_editor_tick
-    @hold_delay -= 1
+    @runway_name_input.tick
+    # Edit runway name immediately on change
+    if @active_runway && @runway_name_input.value_changed?
+      @active_runway.name = @runway_name_input.value.to_s
+    end
 
+    @hold_delay -= 1
     handle_map_editor_mouse_inputs
     handle_map_editor_kb_inputs
   end
 
   def handle_map_editor_mouse_inputs
+    if @active_runway && @mouse.intersect_rect?(@runway_input_box)
+      return
+    end
+
     # Set active/held runway
     if @mouse.key_down.left
       # Unset active runway if we didn't click on one
@@ -37,6 +77,8 @@ class ControllerGame
         @runway_held = runway
       else
         @active_runway = runway
+        @runway_name_input.value = runway.name
+        @runway_name_input.blur
       end
     end
 

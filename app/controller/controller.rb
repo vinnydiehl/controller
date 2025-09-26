@@ -51,7 +51,7 @@ class ControllerGame
     send "render_#{scene}"
 
     # Reset game, for development
-    if @kb.key_down?(:backspace)
+    if @kb.key_down_or_held?(:shift) && @kb.key_down?(:backspace)
       @args.gtk.reboot
     end
   end
