@@ -16,7 +16,7 @@ class Map
   end
 
   def to_h
-    { name: @name, runways: @runways.map(&:to_h) }
+    { name: @name, id: @id, runways: @runways.map(&:to_h) }
   end
 end
 
