@@ -29,7 +29,7 @@ class ControllerGame
         h: 0.5,
       ),
       prompt: "Name",
-      value: @active_runway.name,
+      value: "",
       size_px: 20,
       **INPUT_COLORS,
       on_unhandled_key: lambda do |key, input|
