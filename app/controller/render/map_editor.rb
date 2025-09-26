@@ -46,13 +46,25 @@ class ControllerGame
   end
 
   def render_runway_input
-    @primitives << @runway_input_box
-    @primitives << @runway_name_input
+    @primitives << [
+      @runway_input_box,
+      @runway_name_input,
+      @runway_type_buttons,
+    ]
 
+    # Border around active runway type
+    @primitives << Layout.rect(
+      row: 12,
+      col: 1.5 + (0.5 * RUNWAY_COLORS.keys.find_index { |t| t == @active_runway.type }),
+      w: 0.5,
+      h: 0.5,
+    ).merge(primitive_marker: :border, **WHITE)
+
+    # Labels
     { 11 => "Name:", 11.5 => "Color:" }.each do |row, text|
-      @primitives << Layout.rect(row: row, col: 0.75).merge(
+      @primitives << Layout.rect(row: row, col: 1.3).merge(
         text: text,
-        anchor_x: 0.5,
+        anchor_x: 1,
         anchor_y: 0,
         **MAP_EDITOR_INPUT_TEXT_COLOR,
       )

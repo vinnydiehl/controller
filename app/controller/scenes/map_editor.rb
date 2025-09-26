@@ -43,6 +43,14 @@ class ControllerGame
       end,
       max_length: 40
     )
+    @runway_type_buttons = RUNWAY_COLORS.map.with_index do |(type, color), i|
+      Layout.rect(
+        row: 12,
+        col: 1.5 + (0.5 * i),
+        w: 0.5,
+        h: 0.5,
+      ).merge(primitive_marker: :solid, type: type, **color)
+    end
 
     load_map("test")
   end
@@ -60,8 +68,17 @@ class ControllerGame
   end
 
   def handle_map_editor_mouse_inputs
-    if @active_runway && @mouse.intersect_rect?(@runway_input_box)
-      return
+    if @active_runway
+      # Runway type button click
+      if @mouse.key_down.left &&
+         (type = @runway_type_buttons.find { |b| @mouse.intersect_rect?(b) }&.type)
+        @active_runway.type = type
+      end
+
+      # We're clicking within the box, don't do anything else
+      if @mouse.intersect_rect?(@runway_input_box)
+        return
+      end
     end
 
     # Set active/held runway
