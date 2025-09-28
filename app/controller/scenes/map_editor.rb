@@ -15,45 +15,7 @@ class ControllerGame
 
     @hold_delay = 0
 
-    @runway_input_box = Layout.rect(
-      row: 11.5,
-      col: 0,
-      w: 4,
-      h: 1,
-      include_row_gutter: true,
-      include_col_gutter: true
-    ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
-    @runway_name_input = Input::Text.new(
-      **Layout.rect(
-        row: 11.5,
-        col: 1.5,
-        w: 2.5,
-        h: 0.5,
-      ),
-      prompt: "Name",
-      value: "",
-      size_px: 20,
-      **INPUT_COLORS,
-      on_unhandled_key: lambda do |key, input|
-        case key
-        when :enter
-          input.blur
-        end
-      end,
-      on_clicked: lambda do |_mouse, input|
-        input.focus
-      end,
-      max_length: 40,
-    )
-    @runway_type_buttons = RUNWAY_COLORS.map.with_index do |(type, color), i|
-      Layout.rect(
-        row: 12,
-        col: 1.5 + (0.5 * i),
-        w: 0.5,
-        h: 0.5,
-      ).merge(primitive_marker: :solid, type: type, **color)
-    end
-
+    # Map input
     @map_input_box = Layout.rect(
       row: -0.5,
       col: 0,
@@ -112,6 +74,46 @@ class ControllerGame
       end,
       max_length: 40,
     )
+
+    # Runway input
+    @runway_input_box = Layout.rect(
+      row: 11.5,
+      col: 0,
+      w: 4,
+      h: 1,
+      include_row_gutter: true,
+      include_col_gutter: true
+    ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
+    @runway_name_input = Input::Text.new(
+      **Layout.rect(
+        row: 11.5,
+        col: 1.5,
+        w: 2.5,
+        h: 0.5,
+      ),
+      prompt: "Name",
+      value: "",
+      size_px: 20,
+      **INPUT_COLORS,
+      on_unhandled_key: lambda do |key, input|
+        case key
+        when :enter
+          input.blur
+        end
+      end,
+      on_clicked: lambda do |_mouse, input|
+        input.focus
+      end,
+      max_length: 40,
+    )
+    @runway_type_buttons = RUNWAY_COLORS.map.with_index do |(type, color), i|
+      Layout.rect(
+        row: 12,
+        col: 1.5 + (0.5 * i),
+        w: 0.5,
+        h: 0.5,
+      ).merge(primitive_marker: :solid, type: type, **color)
+    end
 
     # Save modal
     @display_save_modal = false
