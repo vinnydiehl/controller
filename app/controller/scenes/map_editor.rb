@@ -115,6 +115,16 @@ class ControllerGame
       ).merge(primitive_marker: :solid, type: type, **color)
     end
 
+    # Runway info
+    @runway_info_box = Layout.rect(
+      row: 11.25,
+      col: 21,
+      w: 3,
+      h: 1.25,
+      include_row_gutter: true,
+      include_col_gutter: true
+    ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
+
     # Save modal
     @display_save_modal = false
     @exit_button = Button.new(
@@ -209,7 +219,7 @@ class ControllerGame
       end
 
       # We're clicking within the box, don't do anything else
-      if @mouse.intersect_rect?(@runway_input_box)
+      if [@runway_input_box, @runway_info_box].any? { |b| @mouse.intersect_rect?(b) }
         return
       end
     end

@@ -6,6 +6,7 @@ class ControllerGame
     render_map_input
     if @active_runway
       render_runway_input
+      render_runway_info
     end
 
     if @heading_start_point
@@ -96,6 +97,25 @@ class ControllerGame
         anchor_y: 0,
         **MAP_EDITOR_INPUT_TEXT_COLOR,
       )
+    end
+  end
+
+  def render_runway_info
+    @primitives << [
+      @runway_info_box,
+      @runway_info_box.merge(primitive_marker: :border, **BORDER_COLOR),
+    ]
+
+# Layout.point(row: 8, col: 5.5, row_anchor: 0.5, col_anchor: 0.5).merge(text: "[x]", anchor_x: 0.5, anchor_y: 0.5, **label_color)
+
+    data = {
+      "Position" => @active_runway.position.map(&:to_i),
+      "Heading" => @active_runway.heading,
+      "TDZ Radius" => @active_runway.tdz_radius,
+    }
+
+    data.each_with_index do |(label, value), i|
+      @primitives << Layout.point(row: 11 + (0.4 * i), col: 22, row_anchor: 0.5, col_anchor: 0.5).merge(text: "#{label}: #{value}", size_px: 15, anchor_x: 0.5, anchor_y: 0.5, **WHITE)
     end
   end
 
