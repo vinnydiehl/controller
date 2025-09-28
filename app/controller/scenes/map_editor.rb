@@ -288,6 +288,18 @@ class ControllerGame
       return
     end
 
+    # Tab to switch runways
+    if @kb.key_down.tab
+      # Select first runway if none is selected
+      if !@active_runway
+        @active_runway = @map.runways.first
+        return
+      end
+
+      i = @map.runways.find_index(@active_runway)
+      @active_runway = @map.runways[(i + 1) % @map.runways.size]
+    end
+
     if @active_runway
       # Delete runway
       if @kb.key_down.delete
