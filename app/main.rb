@@ -2,7 +2,7 @@ SCENES = %w[game map_editor].freeze
 
 %w[json input].each { |f| require "lib/#{f}.rb" }
 
-%w[constants colors controller
+%w[constants colors button controller
    aircraft input map runway].each { |f| require "app/controller/#{f}.rb" }
 
 require "app/controller/render/shared.rb"

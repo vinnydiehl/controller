@@ -47,6 +47,12 @@ class ControllerGame
     end
   end
 
+  def handle_kb_inputs
+    if @kb.key_down.e
+      set_scene(:map_editor)
+    end
+  end
+
   def mouse_coords
     [@mouse.x, @mouse.y]
   end

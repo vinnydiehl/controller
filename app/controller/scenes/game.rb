@@ -10,6 +10,7 @@ class ControllerGame
 
   def game_tick
     handle_mouse_inputs
+    handle_kb_inputs
 
     # For now, rather than spawning at intervals, just spawn
     # when I hit space for easier development

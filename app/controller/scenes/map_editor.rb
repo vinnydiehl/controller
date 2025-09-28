@@ -112,9 +112,58 @@ class ControllerGame
       end,
       max_length: 40,
     )
+
+    # Save modal
+    @display_save_modal = false
+    @exit_button = Button.new(
+      **Layout.rect(
+        row: -0.5, col: 23.25, w: 0.75, h: 0.75,
+      ).slice(:x, :y, :w, :h),
+      on_click: -> { @display_save_modal = true },
+      path: "sprites/map_editor/x.png",
+    )
+    @save_modal = Layout.rect(
+      row: 5, col: 9,
+      w: 6, h: 2,
+      include_row_gutter: true,
+      include_col_gutter: true
+    ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
+    @save_buttons = [
+      Button.new(
+        **Layout.rect(
+          row: 6, col: 9.25, w: 2.75, h: 0.75,
+        ).slice(:x, :y, :w, :h),
+        on_click: -> do
+          save_map
+          set_scene_back
+        end,
+        text: "Save",
+      ),
+      Button.new(
+        **Layout.rect(
+          row: 6, col: 12, w: 2.75, h: 0.75,
+        ).slice(:x, :y, :w, :h),
+        on_click: -> { set_scene_back },
+        text: "Discard",
+      ),
+      # Exit modal and do nothing
+      Button.new(
+        **Layout.rect(
+          row: 5, col: 14.5, w: 0.5, h: 0.5,
+        ).slice(:x, :y, :w, :h),
+        on_click: -> { @display_save_modal = false },
+        path: "sprites/map_editor/x_black.png",
+      ),
+    ]
   end
 
   def map_editor_tick
+    if @display_save_modal
+      @save_buttons.each(&:tick)
+    else
+      @exit_button.tick
+    end
+
     @map_name_input.tick
     @map_id_input.tick
     # Edit map name/ID immediately on change
@@ -139,6 +188,9 @@ class ControllerGame
   end
 
   def handle_map_editor_mouse_inputs
+    # Save modal should ignore all other inputs
+    return if @display_save_modal
+
     if @mouse.intersect_rect?(@map_input_box)
       return
     elsif @mouse.key_down.left
@@ -206,6 +258,11 @@ class ControllerGame
   end
 
   def handle_map_editor_kb_inputs
+    # Escape toggles save modal
+    if @kb.key_down.escape
+      @display_save_modal = !@display_save_modal
+    end
+
     # Insert new runway
     if @kb.key_down.space
       @map.runways << Runway.new(

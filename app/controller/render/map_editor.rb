@@ -11,6 +11,11 @@ class ControllerGame
     if @heading_start_point
       render_heading_guide
     end
+
+    render_exit_button
+    if @display_save_modal
+      render_save_modal
+    end
   end
 
   def render_runway_markers
@@ -101,6 +106,28 @@ class ControllerGame
       x2: @mouse.x,
       y2: @mouse.y,
       **MAP_EDITOR_ACTIVE_COLOR,
+    }
+  end
+
+  def render_exit_button
+    @primitives << @exit_button
+  end
+
+  def render_save_modal
+    @primitives << [
+      @save_modal,
+      @save_modal.merge(primitive_marker: :border, **BORDER_COLOR),
+      @save_buttons,
+    ]
+
+    @primitives << {
+      **Layout.rect(
+        row: 4.5, col: 12,
+      ),
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      text: "Save changes?",
+      **WHITE,
     }
   end
 end

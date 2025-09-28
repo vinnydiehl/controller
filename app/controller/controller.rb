@@ -23,7 +23,7 @@ class ControllerGame
     @primitives = args.outputs.primitives
 
     @scene_stack = []
-    set_scene(:map_editor, reset_stack: true)
+    set_scene(:game, reset_stack: true)
   end
 
   def set_scene(scene, reset_stack: false)

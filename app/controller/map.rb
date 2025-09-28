@@ -32,9 +32,9 @@ class ControllerGame
     @map = Map.new(image: "data/maps/#{id}/image.png", **map_data)
   end
 
-  def save_map(id)
+  def save_map
     @args.gtk.write_file(
-      "data/maps/#{id}/map.dat",
+      "data/maps/#{@map.id}/map.dat",
       @map.to_h.to_json(indent_size: 2, extensions: true),
     )
   end

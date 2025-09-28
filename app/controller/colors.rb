@@ -35,3 +35,8 @@ RUNWAY_COLORS = {
   green: { r: 0, g: 154, b: 23 },
   orange: { r: 255, g: 128, b: 0 },
 }
+
+# Grayscale values for button colors
+BUTTON_COLOR_VALUE = 100
+BUTTON_HIGHLIGHT_VALUE = 150
+BUTTON_TEXT_VALUE = 0
