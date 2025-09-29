@@ -110,7 +110,7 @@ class ControllerGame
     # Labels
     {
       "Position" => @active_runway.position.map(&:to_i),
-      "Heading" => @active_runway.heading,
+      "Heading" => @active_runway.heading.to_i,
       "TDZ Radius" => @active_runway.tdz_radius,
     }.each_with_index do |(label, value), i|
       @primitives << Layout.point(
