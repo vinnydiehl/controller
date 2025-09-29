@@ -20,8 +20,13 @@ class ControllerGame
       return if coords.inside_rect?(ac.rect) && ac.path.empty?
 
       @map.runways.each do |runway|
-        if runway.mouse_in_tdz? && ac.runway_type == runway.type
-          final_heading = ac.path[-FINAL_APPROACH_BUFFER].angle_to(runway.position)
+        if runway.mouse_in_tdz? && ac.runway_type == runway.type && ac.path.any?
+          # Take a buffer a few waypoints back from the final leg of the path
+          # to determine if the runway alignment of the path is within tolerance
+          # to clear for landing. If the path is shorter than the buffer,
+          # just use the first point in the path
+          buffer_i = ac.path.size >= FINAL_APPROACH_BUFFER ? -FINAL_APPROACH_BUFFER : 0
+          final_heading = ac.path[buffer_i].angle_to(runway.position)
           alignment = (runway.heading - final_heading).abs
 
           if ac.vtol || alignment <= FINAL_APPROACH_TOLERANCE
