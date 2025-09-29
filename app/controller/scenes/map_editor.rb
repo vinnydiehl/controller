@@ -8,8 +8,6 @@ KB_DIRECTIONS = {
 
 class ControllerGame
   def map_editor_init
-    load_map("test")
-
     @runway_held = nil
     @active_runway = nil
 

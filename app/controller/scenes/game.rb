@@ -5,7 +5,7 @@ class ControllerGame
     # Seconds between aircraft spawns
     @spawn_interval = 10
 
-    load_map("test")
+    load_map("island")
   end
 
   def game_tick

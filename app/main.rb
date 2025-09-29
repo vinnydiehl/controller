@@ -1,6 +1,6 @@
 SCENES = %w[game map_editor].freeze
 
-%w[json input].each { |f| require "lib/#{f}.rb" }
+%w[tiled/tiled json input].each { |f| require "lib/#{f}.rb" }
 
 %w[constants colors button controller
    aircraft input map runway].each { |f| require "app/controller/#{f}.rb" }
