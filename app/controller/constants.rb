@@ -50,3 +50,4 @@ RWY_DEFAULTS = {
   length: RWY_WIDTH * 6,
   surface: :cement,
 }
+RWY_MIN_LENGTH = RWY_WIDTH * 3

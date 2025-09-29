@@ -250,15 +250,20 @@ class ControllerGame
       @runway_held = nil
     end
 
-    # Start drawing a heading line
-    if @mouse.key_down.right && @active_runway
-      @heading_start_point = [@mouse.x, @mouse.y]
-    end
+    # Adjust heading and length by right clicking
+    if @mouse.key_down_or_held?(:right) && @active_runway
+      @active_runway.heading = @active_runway.position.angle_to(@mouse.position)
 
-    # Release heading line
-    if @mouse.key_up.right && @heading_start_point
-      @active_runway.heading = @heading_start_point.angle_to(@mouse.position)
-      @heading_start_point = nil
+      # Snap the length to the nearest multiple of RWY_MIDDLE_TILE_WIDTH,
+      # and ensure it's at least RWY_MIN_LENGTH
+      raw_length =
+        Geometry.distance(@active_runway.position, @mouse.position) + RWY_WIDTH
+      snap_base = raw_length - (RWY_WIDTH * 2)
+      snap_tiles = (snap_base.to_f / RWY_MIDDLE_TILE_WIDTH).round
+      @active_runway.length = [
+        (snap_tiles * RWY_MIDDLE_TILE_WIDTH) + (RWY_WIDTH * 2),
+        RWY_MIN_LENGTH,
+      ].max
     end
 
     # Scroll to change TDZ radius

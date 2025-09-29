@@ -1,17 +1,14 @@
 class ControllerGame
   def render_map_editor
     render_map
+
     render_runways
-    render_runway_markers #########
+    render_runway_markers
 
     render_map_input
     if @active_runway
       render_runway_input
       render_runway_info
-    end
-
-    if @heading_start_point
-      render_heading_guide
     end
 
     render_exit_button
@@ -127,16 +124,6 @@ class ControllerGame
         **WHITE,
       )
     end
-  end
-
-  def render_heading_guide
-    @primitives << {
-      x: @heading_start_point.x,
-      y: @heading_start_point.y,
-      x2: @mouse.x,
-      y2: @mouse.y,
-      **MAP_EDITOR_ACTIVE_COLOR,
-    }
   end
 
   def render_exit_button
