@@ -1,10 +1,10 @@
 {
-  "name": "",
+  "name": "Island",
   "id": "island",
   "runways": [
     {
       "type": {"@@jm:symbol":"blue"},
-      "name": "1",
+      "name": "14R",
       "position": [
         894.0,
         252.0
@@ -17,7 +17,7 @@
     },
     {
       "type": {"@@jm:symbol":"red"},
-      "name": "2",
+      "name": "04",
       "position": [
         732.0,
         278.0
@@ -30,7 +30,7 @@
     },
     {
       "type": {"@@jm:symbol":"yellow"},
-      "name": "3",
+      "name": "14L",
       "position": [
         256.0,
         505.0
@@ -43,7 +43,7 @@
     },
     {
       "type": {"@@jm:symbol":"green"},
-      "name": "5",
+      "name": "18W",
       "position": [
         641.0,
         514.0
@@ -56,7 +56,7 @@
     },
     {
       "type": {"@@jm:symbol":"orange"},
-      "name": "00",
+      "name": "H1",
       "position": [
         210.0,
         133.0
