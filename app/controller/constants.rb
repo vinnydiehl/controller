@@ -7,11 +7,25 @@ AIRCRAFT_TYPES = [
     sprite: "sprites/circle/blue.png",
   },
   {
+    type: :regional_jet,
+    speed: 20,
+    runway: :red,
+    vtol: false,
+    sprite: "sprites/circle/red.png",
+  },
+  {
     type: :single_engine_piston,
     speed: 15,
     runway: :yellow,
     vtol: false,
     sprite: "sprites/circle/yellow.png",
+  },
+  {
+    type: :seaplane,
+    speed: 15,
+    runway: :green,
+    vtol: false,
+    sprite: "sprites/circle/green.png",
   },
   {
     type: :helicopter,
