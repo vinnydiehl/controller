@@ -24,6 +24,7 @@ class ControllerGame
 
     @scene_stack = []
     set_scene(:game, reset_stack: true)
+    set_scene(:map_editor)
   end
 
   def set_scene(scene, reset_stack: false)

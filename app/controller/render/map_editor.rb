@@ -75,24 +75,44 @@ class ControllerGame
       @runway_input_box,
       @runway_name_input,
       @runway_type_buttons,
+      # First surface is nil so only render 1..-1
+      @runway_surface_buttons[1..-1].map do |btn|
+        btn.merge(path: "sprites/runway/#{btn.surface}/square.png")
+      end,
       # Border
       @runway_input_box.merge(primitive_marker: :border, **BORDER_COLOR),
     ]
 
     # Border around active runway type
     @primitives << Layout.rect(
-      row: 12,
+      row: 11,
       col: 1.5 + (0.5 * RUNWAY_COLORS.keys.find_index { |t| t == @active_runway.type }),
       w: 0.5,
       h: 0.5,
     ).merge(primitive_marker: :border, **WHITE)
 
+    # Border around active runway surface (appears under surface button)
+    @primitives << Layout.rect(
+      row: 11.5,
+      col: 1.5 + (0.5 * RWY_SURFACES.find_index { |t| t == @active_runway.surface }),
+      w: 0.5,
+      h: 0.5,
+    ).merge(primitive_marker: :border, **WHITE)
+    # Render color for current runway type over each surface
+    @runway_surface_buttons.each do |button|
+      @primitives << button.merge(
+        path: "sprites/runway/outline/square.png",
+        **RUNWAY_COLORS[@active_runway.type],
+      )
+    end
+
     # Labels
-    { 11 => "Name:", 11.5 => "Color:" }.each do |row, text|
-      @primitives << Layout.rect(row: row, col: 1.3).merge(
-        text: text,
+    %w[Name Color Surface Heli].each_with_index do |text, i|
+      @primitives << Layout.point(row: 9.8 + (0.5 * i), col: 1.3).merge(
+        text: "#{text}:",
+        size_px: 15,
         anchor_x: 1,
-        anchor_y: 0,
+        anchor_y: 0.5,
         **MAP_EDITOR_INPUT_TEXT_COLOR,
       )
     end
@@ -109,10 +129,11 @@ class ControllerGame
     {
       "Position" => @active_runway.position.map(&:to_i),
       "Heading" => @active_runway.heading.to_i,
-      "TDZ Radius" => @active_runway.tdz_radius,
+      "Length" => @active_runway.length.to_i,
+      "TDZ Radius" => @active_runway.tdz_radius.to_i,
     }.each_with_index do |(label, value), i|
       @primitives << Layout.point(
-        row: 11 + (0.4 * i),
+        row: 10.55 + (0.4 * i),
         col: 22,
         row_anchor: 0.5,
         col_anchor: 0.5,

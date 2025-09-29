@@ -75,16 +75,16 @@ class ControllerGame
 
     # Runway input
     @runway_input_box = Layout.rect(
-      row: 11.5,
+      row: 10.5,
       col: 0,
       w: 4,
-      h: 1,
+      h: 2,
       include_row_gutter: true,
       include_col_gutter: true
     ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
     @runway_name_input = Input::Text.new(
       **Layout.rect(
-        row: 11.5,
+        row: 10.5,
         col: 1.5,
         w: 2.5,
         h: 0.5,
@@ -106,19 +106,27 @@ class ControllerGame
     )
     @runway_type_buttons = RUNWAY_COLORS.map.with_index do |(type, color), i|
       Layout.rect(
-        row: 12,
+        row: 11,
         col: 1.5 + (0.5 * i),
         w: 0.5,
         h: 0.5,
       ).merge(primitive_marker: :solid, type: type, **color)
     end
+    @runway_surface_buttons = RWY_SURFACES.map.with_index do |surface, i|
+      Layout.rect(
+        row: 11.5,
+        col: 1.5 + (0.5 * i),
+        w: 0.5,
+        h: 0.5,
+      ).merge(surface: surface)
+    end
 
     # Runway info
     @runway_info_box = Layout.rect(
-      row: 11.25,
+      row: 10.75,
       col: 21,
       w: 3,
-      h: 1.25,
+      h: 1.75,
       include_row_gutter: true,
       include_col_gutter: true
     ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
@@ -214,6 +222,18 @@ class ControllerGame
       if @mouse.key_down.left &&
          (type = @runway_type_buttons.find { |b| @mouse.intersect_rect?(b) }&.type)
         @active_runway.type = type
+        return
+      end
+
+      # Runway surface button click
+      if @mouse.key_down.left &&
+         (@runway_surface_buttons.any? { |b| @mouse.intersect_rect?(b) })
+        # The surface might be nil so we have to do a find here rather than
+        # doing this the same way as the type buttons
+        @active_runway.surface = @runway_surface_buttons.find do |b|
+          @mouse.intersect_rect?(b)
+        end.surface
+        return
       end
 
       # We're clicking within the box, don't do anything else
