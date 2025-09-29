@@ -52,3 +52,4 @@ RWY_DEFAULTS = {
 }
 RWY_MIN_LENGTH = RWY_WIDTH * 3
 RWY_SURFACES = [nil, :cement]
+HELI_OPTIONS = [nil, :square, :circle]

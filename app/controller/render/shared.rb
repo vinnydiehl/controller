@@ -19,54 +19,71 @@ class ControllerGame
 
     # Surface
     if runway.surface
+      if runway.helipad
+        @outputs[target].primitives << {
+          x: 0, y: 0,
+          w: RWY_WIDTH, h: RWY_WIDTH,
+          path: "sprites/runway/#{runway.surface}/#{runway.helipad}.png"
+        }
+      else
+        @outputs[target].primitives << [
+          # Threshold
+          {
+            x: 0, y: 0,
+            w: RWY_WIDTH, h: RWY_WIDTH,
+            path: "sprites/runway/#{runway.surface}/end.png",
+          },
+          # Departure end
+          {
+            x: runway.length - RWY_WIDTH, y: 0,
+            w: RWY_WIDTH, h: RWY_WIDTH,
+            path: "sprites/runway/#{runway.surface}/end.png",
+            flip_horizontally: true,
+          },
+        ]
+        (middle_length / RWY_MIDDLE_TILE_WIDTH).to_i.times do |i|
+          @outputs[target].primitives << {
+            x: RWY_WIDTH + (RWY_MIDDLE_TILE_WIDTH * i), y: 0,
+            w: RWY_MIDDLE_TILE_WIDTH, h: RWY_WIDTH,
+            path: "sprites/runway/#{runway.surface}/middle.png",
+          }
+        end
+      end
+    end
+
+    # Outline
+    if runway.helipad
+      @outputs[target].primitives << {
+        x: 0, y: 0,
+        w: RWY_WIDTH, h: RWY_WIDTH,
+        path: "sprites/runway/outline/heli_#{runway.helipad}.png",
+        **RUNWAY_COLORS[runway.type],
+      }
+    else
       @outputs[target].primitives << [
         # Threshold
         {
           x: 0, y: 0,
           w: RWY_WIDTH, h: RWY_WIDTH,
-          path: "sprites/runway/#{runway.surface}/end.png",
+          path: "sprites/runway/outline/threshold.png",
+          **RUNWAY_COLORS[runway.type],
+        },
+        # Middle
+        {
+          x: RWY_WIDTH, y: 0,
+          w: middle_length, h: RWY_WIDTH,
+          path: "sprites/runway/outline/middle.png",
+          **RUNWAY_COLORS[runway.type],
         },
         # Departure end
         {
           x: runway.length - RWY_WIDTH, y: 0,
           w: RWY_WIDTH, h: RWY_WIDTH,
-          path: "sprites/runway/#{runway.surface}/end.png",
-          flip_horizontally: true,
+          path: "sprites/runway/outline/der.png",
+          **RUNWAY_COLORS[runway.type],
         },
       ]
-      (middle_length / RWY_MIDDLE_TILE_WIDTH).to_i.times do |i|
-        @outputs[target].primitives << {
-          x: RWY_WIDTH + (RWY_MIDDLE_TILE_WIDTH * i), y: 0,
-          w: RWY_MIDDLE_TILE_WIDTH, h: RWY_WIDTH,
-          path: "sprites/runway/#{runway.surface}/middle.png",
-        }
-      end
     end
-
-    # Outline
-    @outputs[target].primitives << [
-      # Threshold
-      {
-        x: 0, y: 0,
-        w: RWY_WIDTH, h: RWY_WIDTH,
-        path: "sprites/runway/outline/threshold.png",
-        **RUNWAY_COLORS[runway.type],
-      },
-      # Middle
-      {
-        x: RWY_WIDTH, y: 0,
-        w: middle_length, h: RWY_WIDTH,
-        path: "sprites/runway/outline/middle.png",
-        **RUNWAY_COLORS[runway.type],
-      },
-      # Departure end
-      {
-        x: runway.length - RWY_WIDTH, y: 0,
-        w: RWY_WIDTH, h: RWY_WIDTH,
-        path: "sprites/runway/outline/der.png",
-        **RUNWAY_COLORS[runway.type],
-      },
-    ]
 
     anchor_x = (RWY_WIDTH / 2) / runway.length
 

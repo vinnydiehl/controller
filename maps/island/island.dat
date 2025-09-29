@@ -6,66 +6,66 @@
       "type": {"@@jm:symbol":"blue"},
       "name": "1",
       "position": [
-        860.0,
-        274.0
+        894.0,
+        252.0
       ],
-      "length": 192,
+      "length": 256.0,
       "tdz_radius": 20,
-      "heading": 131.0548137709625,
-      "helipad": false,
+      "heading": 140.656215634516,
+      "helipad": null,
       "surface": {"@@jm:symbol":"cement"}
     },
     {
       "type": {"@@jm:symbol":"red"},
       "name": "2",
       "position": [
-        738.0,
-        287.0
+        732.0,
+        278.0
       ],
-      "length": 192,
+      "length": 216.0,
       "tdz_radius": 20,
-      "heading": 38.01894259317021,
-      "helipad": false,
+      "heading": 36.11934084947975,
+      "helipad": null,
       "surface": {"@@jm:symbol":"cement"}
     },
     {
       "type": {"@@jm:symbol":"yellow"},
       "name": "3",
       "position": [
-        779.0,
-        184.0
+        256.0,
+        505.0
       ],
-      "length": 192,
+      "length": 128.0,
       "tdz_radius": 20,
-      "heading": 153.0723221489595,
-      "helipad": false,
-      "surface": {"@@jm:symbol":"cement"}
-    },
-    {
-      "type": {"@@jm:symbol":"yellow"},
-      "name": "4",
-      "position": [
-        535.0,
-        234.0
-      ],
-      "length": 192,
-      "tdz_radius": 20,
-      "heading": 54.88798881557778,
-      "helipad": false,
+      "heading": 135.0,
+      "helipad": null,
       "surface": {"@@jm:symbol":"cement"}
     },
     {
       "type": {"@@jm:symbol":"green"},
       "name": "5",
       "position": [
-        645.0,
-        510.0
+        641.0,
+        514.0
       ],
       "length": 192,
       "tdz_radius": 20,
       "heading": 180.0,
-      "helipad": false,
+      "helipad": null,
       "surface": null
+    },
+    {
+      "type": {"@@jm:symbol":"orange"},
+      "name": "00",
+      "position": [
+        210.0,
+        133.0
+      ],
+      "length": 104.0,
+      "tdz_radius": 20,
+      "heading": 0.0275040592493383,
+      "helipad": {"@@jm:symbol":"circle"},
+      "surface": {"@@jm:symbol":"cement"}
     }
   ]
 }

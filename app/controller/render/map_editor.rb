@@ -106,6 +106,15 @@ class ControllerGame
       )
     end
 
+    # Helipad button
+    heli_path = if @active_runway.helipad
+      "sprites/runway/outline/#{@active_runway.helipad}.png"
+    else
+      "sprites/map_editor/x.png"
+    end
+    heli_color = @active_runway.helipad ? RUNWAY_COLORS[@active_runway.type] : WHITE
+    @primitives << @heli_button.merge(path: heli_path, **heli_color)
+
     # Labels
     %w[Name Color Surface Heli].each_with_index do |text, i|
       @primitives << Layout.point(row: 9.8 + (0.5 * i), col: 1.3).merge(
@@ -129,7 +138,7 @@ class ControllerGame
     {
       "Position" => @active_runway.position.map(&:to_i),
       "Heading" => @active_runway.heading.to_i,
-      "Length" => @active_runway.length.to_i,
+      "Length" => @active_runway.helipad ? "N/A" : @active_runway.length.to_i,
       "TDZ Radius" => @active_runway.tdz_radius.to_i,
     }.each_with_index do |(label, value), i|
       @primitives << Layout.point(

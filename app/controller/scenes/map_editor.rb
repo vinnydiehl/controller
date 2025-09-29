@@ -120,6 +120,12 @@ class ControllerGame
         h: 0.5,
       ).merge(surface: surface)
     end
+    @heli_button = Layout.rect(
+      row: 12,
+      col: 1.5,
+      w: 0.5,
+      h: 0.5,
+    )
 
     # Runway info
     @runway_info_box = Layout.rect(
@@ -217,38 +223,44 @@ class ControllerGame
       @map_id_input.blur
     end
 
-    if @active_runway
-      # Runway type button click
-      if @mouse.key_down.left &&
-         (type = @runway_type_buttons.find { |b| @mouse.intersect_rect?(b) }&.type)
-        @active_runway.type = type
-        return
-      end
-
-      # Runway surface button click
-      if @mouse.key_down.left &&
-         (@runway_surface_buttons.any? { |b| @mouse.intersect_rect?(b) })
-        # The surface might be nil so we have to do a find here rather than
-        # doing this the same way as the type buttons
-        @active_runway.surface = @runway_surface_buttons.find do |b|
-          @mouse.intersect_rect?(b)
-        end.surface
-        return
-      end
-
-      # We're clicking within the box, don't do anything else
-      if [@runway_input_box, @runway_info_box].any? { |b| @mouse.intersect_rect?(b) }
-        return
-      end
-    end
-
-    # Set active/held runway
     if @mouse.key_down.left
+      if @active_runway
+        # Runway type button click
+        if (type = @runway_type_buttons.find { |b| @mouse.intersect_rect?(b) }&.type)
+          @active_runway.type = type
+          return
+        end
+
+        # Runway surface button click
+        if (@runway_surface_buttons.any? { |b| @mouse.intersect_rect?(b) })
+          # The surface might be nil so we have to do a find here rather than
+          # doing this the same way as the type buttons
+          @active_runway.surface = @runway_surface_buttons.find do |b|
+            @mouse.intersect_rect?(b)
+          end.surface
+          return
+        end
+
+        # Heli button click
+        if @mouse.intersect_rect?(@heli_button)
+          # Cycle between options
+          @active_runway.helipad = HELI_OPTIONS[
+            (HELI_OPTIONS.find_index(@active_runway.helipad) + 1) % HELI_OPTIONS.size
+          ]
+        end
+
+        # We're clicking within the box, don't do anything else
+        if [@runway_input_box, @runway_info_box].any? { |b| @mouse.intersect_rect?(b) }
+          return
+        end
+      end
+
       # Unset active runway if we didn't click on one
       unless (runway = @map.runways.find(&:mouse_in_tdz?))
         @active_runway = nil
       end
 
+      # Activate runway/initiate drag
       if active?(runway)
         # Runway already needs to be active to pick it up,
         # to prevent unintentional dragging
