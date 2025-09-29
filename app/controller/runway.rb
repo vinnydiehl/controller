@@ -1,9 +1,10 @@
 class Runway
-  attr_accessor *%i[type name position tdz_radius heading]
+  attr_accessor *%i[type name position length tdz_radius heading helipad surface]
 
-  def initialize(type:, name:, position:, tdz_radius:, heading:)
-    @type, @name, @position, @tdz_radius, @heading =
-      type, name, position, tdz_radius, heading
+  def initialize(type:, name:, position:, length:, tdz_radius:,
+                 heading:, helipad:, surface:)
+    @type, @name, @position, @length, @tdz_radius, @heading, @helipad, @surface=
+      type, name, position, length, tdz_radius, heading, helipad, surface
 
     @mouse = $gtk.args.inputs.mouse
   end
@@ -17,8 +18,11 @@ class Runway
       type: @type,
       name: @name,
       position: @position,
+      length: @length,
       tdz_radius: @tdz_radius,
       heading: @heading,
+      helipad: @helipad,
+      surface: @surface,
     }
   end
 end

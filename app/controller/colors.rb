@@ -32,7 +32,7 @@ RUNWAY_COLORS = {
   blue: { r: 0, g: 0, b: 255 },
   red: { r: 255, g: 0, b: 0 },
   yellow: { r: 253, g: 209, b: 40 },
-  green: { r: 0, g: 154, b: 23 },
+  green: { r: 151, g: 220, b: 33 },
   orange: { r: 255, g: 128, b: 0 },
 }
 

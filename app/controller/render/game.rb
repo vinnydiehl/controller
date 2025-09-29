@@ -1,6 +1,7 @@
 class ControllerGame
   def render_game
     render_map
+    render_runways
     render_paths
     render_aircraft
   end

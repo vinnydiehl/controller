@@ -1,7 +1,8 @@
 class ControllerGame
   def render_map_editor
     render_map
-    render_runway_markers
+    render_runways
+    render_runway_markers #########
 
     render_map_input
     if @active_runway

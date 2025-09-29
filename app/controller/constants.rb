@@ -38,7 +38,15 @@ FINAL_APPROACH_BUFFER = 5
 # +/- degrees for acceptable final approach runway alignment
 FINAL_APPROACH_TOLERANCE = 45
 
+# Runway rendering
+RWY_WIDTH = 32
+RWY_MIDDLE_TILE_WIDTH = RWY_WIDTH / 8
+
 # Map editor stuff
 KEY_HOLD_DELAY = 0.5.seconds
-DEFAULT_TDZ_RADIUS = 10
-DEFAULT_RWY_HEADING = 0
+RWY_DEFAULTS = {
+  tdz_radius: 20,
+  heading: 0,
+  length: RWY_WIDTH * 6,
+  surface: :cement,
+}
