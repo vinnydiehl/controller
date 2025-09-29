@@ -26,6 +26,10 @@ class Map
   def to_h
     { name: @name, id: @id, runways: @runways.map(&:to_h) }
   end
+
+  def deep_dup
+    dup.tap { |m| m.runways = m.runways.map(&:dup) }
+  end
 end
 
 # Map serialization/deserialization

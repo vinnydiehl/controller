@@ -8,6 +8,9 @@ KB_DIRECTIONS = {
 
 class ControllerGame
   def map_editor_init
+    # Save this in case we want to discard the changes
+    @original_map = @map.deep_dup
+
     @runway_held = nil
     @active_runway = nil
 
@@ -167,7 +170,10 @@ class ControllerGame
         **Layout.rect(
           row: 6, col: 12, w: 2.75, h: 0.75,
         ).slice(:x, :y, :w, :h),
-        on_click: -> { set_scene_back },
+        on_click: -> do
+          @map = @original_map.deep_dup
+          set_scene_back
+        end,
         text: "Discard",
       ),
       # Exit modal and do nothing
