@@ -24,17 +24,17 @@ end
 class ControllerGame
   def load_map(id)
     map_data = Argonaut::JSON.parse(
-      @args.gtk.read_file("data/maps/#{id}/map.dat"),
+      @args.gtk.read_file("maps/#{id}/map.dat"),
       symbolize_keys: true,
       extensions: true,
     )
     map_data[:runways].map! { |r| Runway.new(**r) }
-    @map = Map.new(image: "data/maps/#{id}/image.png", **map_data)
+    @map = Map.new(image: "maps/#{id}/image.png", **map_data)
   end
 
   def save_map
     @args.gtk.write_file(
-      "data/maps/#{@map.id}/map.dat",
+      "maps/#{@map.id}/map.dat",
       @map.to_h.to_json(indent_size: 2, extensions: true),
     )
   end
