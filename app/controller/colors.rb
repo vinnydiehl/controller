@@ -1,6 +1,7 @@
 WHITE = {
   r: 255, g: 255, b: 255,
 }
+
 BORDER_COLOR = {
   r: 40, g: 40, b: 40,
 }
@@ -12,6 +13,10 @@ BACKGROUND_COLOR = {
 PATH_COLOR = WHITE
 CLEARED_TO_LAND_PATH_COLOR = {
   r: 255, g: 0, b: 0,
+}
+
+COLLISION_COLOR = {
+  r: 255, g: 0, b: 0, a: 150,
 }
 
 INPUT_COLORS = {

@@ -7,8 +7,7 @@ class ControllerGame
 
     @ticks = 0
 
-    @screen_width = args.grid.w
-    @screen_height = args.grid.h
+    @screen = args.grid.rect
     @cx = args.grid.w / 2
     @cy = args.grid.h / 2
 

@@ -5,9 +5,9 @@ class Aircraft
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
 
-  def initialize(type:, speed:, runway:, vtol:)
-    @type, @speed, @runway_type, @vtol =
-      type, speed, runway, vtol
+  def initialize(position:, type:, speed:, runway:, vtol:)
+    @position, @type, @speed, @runway_type, @vtol =
+      position, type, speed, runway, vtol
 
     # Pixels/frame
     @speed_px = @speed / 60.0
@@ -17,14 +17,6 @@ class Aircraft
     @path = []
 
     @screen = $gtk.args.grid.rect
-
-    # Random spawn along edges
-    @position = {
-      left: [-SPAWN_PADDING, rand(@screen.h)],
-      right: [@screen.w + SPAWN_PADDING, rand(@screen.h)],
-      bottom: [rand(@screen.w), -SPAWN_PADDING],
-      top: [rand(@screen.w), @screen.h + SPAWN_PADDING],
-    }[[:left, :right, :top, :bottom].sample]
 
     # Direction the aircraft is moving, in degrees.
     # No unfortunately this doesn't align with compass degrees.
@@ -86,6 +78,10 @@ class Aircraft
       y: @position.y - AIRCRAFT_RADIUS,
       w: AIRCRAFT_SIZE, h: AIRCRAFT_SIZE,
     }
+  end
+
+  def hitbox
+    Geometry.rect_to_circle(rect).tap { |c| c[:radius] /= 1.5 }
   end
 
   def sprite
