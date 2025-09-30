@@ -1,5 +1,6 @@
 class ControllerGame
   def game_init
+    @score = 0
     @aircraft = []
 
     # Seconds between aircraft spawns
@@ -21,6 +22,7 @@ class ControllerGame
     end
 
     @aircraft.each(&:tick)
+    @score += @aircraft.count(&:landed)
     @aircraft.reject!(&:landed)
   end
 end
