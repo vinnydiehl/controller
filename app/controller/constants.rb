@@ -36,9 +36,10 @@ AIRCRAFT_RADIUS = AIRCRAFT_SIZE / 2
 
 # How far off the screen an aircraft spawns
 SPAWN_PADDING = AIRCRAFT_SIZE * 3
-# For spacing out spawns. Testing with a retry limit of 5 I could
-# always get at least 30 aircraft spawned all at once.
-SPAWN_RETRY_LIMIT = 5
+# For spacing out spawns. Testing with a retry limit of 10 I could
+# always get 20 aircraft spawned at once, and when trying to spawn
+# 50 I always got at least 30, which is more than good enough.
+SPAWN_RETRY_LIMIT = 10
 SPAWN_BUFFER = AIRCRAFT_RADIUS * 4
 
 # Pixels between points in an aircraft's path (for path smoothing)
