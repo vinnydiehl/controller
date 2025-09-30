@@ -5,9 +5,9 @@ class Aircraft
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
 
-  def initialize(type:, speed:, runway:, vtol:, sprite:)
-    @type, @speed, @runway_type, @vtol, @sprite_path =
-      type, speed, runway, vtol, sprite
+  def initialize(type:, speed:, runway:, vtol:)
+    @type, @speed, @runway_type, @vtol =
+      type, speed, runway, vtol
 
     # Pixels/frame
     @speed_px = @speed / 60.0
@@ -91,8 +91,9 @@ class Aircraft
   def sprite
     {
       **rect,
-      path: @sprite_path,
+      path: "sprites/aircraft/#{type}.png",
       angle: @heading,
+      **RUNWAY_COLORS[@runway_type],
     }
   end
 
