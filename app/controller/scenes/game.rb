@@ -30,6 +30,7 @@ class ControllerGame
     @aircraft.reject!(&:landed)
 
     @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
+    @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))
     @game_over = true if @collisions.any?
   end
 

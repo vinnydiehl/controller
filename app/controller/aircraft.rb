@@ -80,8 +80,16 @@ class Aircraft
     }
   end
 
+  # Hitbox for a collision
   def hitbox
     Geometry.rect_to_circle(rect).tap { |c| c[:radius] /= 1.5 }
+  end
+
+  # Hitbox to produce a warning that aircraft are about to collide
+  def warning_hitbox
+    # Scale size of warning hitbox with aircraft speed
+    scale_factor = ((@speed + 5) / 10).clamp(2, 3)
+    Geometry.rect_to_circle(rect).tap { |c| c[:radius] *= scale_factor }
   end
 
   def sprite

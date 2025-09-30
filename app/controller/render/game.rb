@@ -7,6 +7,8 @@ class ControllerGame
 
     if @collisions.any?
       render_collisions
+    elsif @warnings.any?
+      render_warnings
     end
 
     render_paths
@@ -32,6 +34,16 @@ class ControllerGame
     @primitives << @collisions.map do |collision|
       {
         **circle_to_rect(collision.dup.tap { |c| c.radius *= 2 }),
+        path: "sprites/map_editor/circle.png",
+        **COLLISION_COLOR,
+      }
+    end
+  end
+
+  def render_warnings
+    @primitives << @warnings.map do |warning|
+      {
+        **circle_to_rect(warning),
         path: "sprites/map_editor/circle.png",
         **COLLISION_COLOR,
       }
