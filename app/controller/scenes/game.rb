@@ -50,10 +50,19 @@ class ControllerGame
     # end
 
     @aircraft.each(&:tick)
+    # Score and cull landed/departed aircraft
     @score += @aircraft.count(&:landed)
     @aircraft.reject!(&:landed)
     @score += @aircraft.count(&:departed)
     @aircraft.reject!(&:departed)
+
+    # Decrement departure timers
+    @map.runways.select(&:departure).each do |runway|
+      runway.departure[:timer] -= 1 unless @game_over
+      if runway.departure[:timer] <= 0
+        @game_over = true
+      end
+    end
 
     @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
     @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))

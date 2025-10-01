@@ -72,13 +72,15 @@ class Runway
     x += Math.cos(angle) * HOLD_SHORT_LABEL_PADDING
     y += Math.sin(angle) * HOLD_SHORT_LABEL_PADDING
 
+    seconds = (@departure.timer / 60).ceil
+
     {
       x: x, y: y,
-      text: (@departure.timer / 60).ceil,
+      text: seconds,
       size_px: HOLD_SHORT_LABEL_SIZE,
       anchor_x: 0.5,
       anchor_y: 0.5,
-      **WHITE,
+      **(seconds > 10 ? WHITE : RED),
     }
   end
 
