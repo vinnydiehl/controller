@@ -1,9 +1,36 @@
 class ControllerGame
   def handle_mouse_inputs
     if @mouse.key_down.left
-      return unless (@aircraft_redirecting = @aircraft.find do |ac|
+      # See if we're clicking on an airborne aircraft
+      @aircraft_redirecting = @aircraft.find do |ac|
         @mouse.intersect_rect?(ac.rect)
-      end)
+      end
+
+      # Handle click on departure
+      if !@aircraft_redirecting
+        @map.runways.select(&:departure).each do |runway|
+          if @mouse.position.point_inside_circle?(runway.hold_short_point,
+                                                  DEPARTURE_SIZE / 2)
+            ac_type = AIRCRAFT_TYPES.find { |t| t.type == runway.departure.type }
+            course = runway.heading
+            # The way that helipads are angled, we'll want to depart straight
+            # forward rather than turning onto the runway
+            course = (course + 90) % 360 if ac_type.vtol
+
+            @aircraft << Aircraft.new(
+              position: runway.position,
+              **ac_type,
+              course: course,
+              departing: true,
+            )
+            runway.depart
+          end
+        end
+      end
+
+      # Otherwise we're trying to vector an aircraft
+
+      return unless @aircraft_redirecting
 
       # Clear path if there is one
       @aircraft_redirecting.path = []

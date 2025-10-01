@@ -1,13 +1,15 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land landed
                     type speed runway_type vtol]
+  attr_reader :departing
 
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
 
-  def initialize(position:, type:, speed:, runway:, vtol:)
-    @position, @type, @speed, @runway_type, @vtol =
-      position, type, speed, runway, vtol
+  def initialize(position:, type:, speed:, runway:, vtol:,
+                 course: nil, departing: nil)
+    @position, @type, @speed, @runway_type, @vtol, @course, @departing =
+      position, type, speed, runway, vtol, course, departing
 
     # Pixels/frame
     @speed_px = @speed / 60.0
@@ -25,7 +27,7 @@ class Aircraft
     # 0 = right, 90 = up, 180 = left, 270 = down
     #
     # Spawns pointing towards the center.
-    @course = @position.angle_to([@screen.w / 2, @screen.h / 2])
+    @course ||= @position.angle_to([@screen.w / 2, @screen.h / 2])
     # Angle the front of the aircraft sprite is facing, eases
     # towards the course if they become offset.
     @heading = @course
@@ -33,7 +35,7 @@ class Aircraft
     @cleared_to_land = false
     @landed = false
 
-    # The aircraft begins off the screen. This will be set to true
+    # The aircraft begins off the screen. This will be set to false
     # once it enters the screen, and will be used in the future for
     # turning the aircraft around if it hits the edge of the screen.
     @offscreen = true
