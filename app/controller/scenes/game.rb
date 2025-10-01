@@ -5,8 +5,13 @@ class ControllerGame
 
     @aircraft = []
 
-    # Seconds between aircraft spawns
-    @spawn_interval = 10
+    # Wave scheduling
+    # First wave spawns with a slight delay
+    @next_wave_in = 2.seconds
+    # Aircraft in incoming wave (0 if there is no incoming wave)
+    @incoming_wave = 0
+    # Timer to track time between aircraft in a given wave
+    @wave_spawn_timer = 0
 
     load_map("island")
   end
@@ -17,12 +22,26 @@ class ControllerGame
 
     return if @game_over
 
-    # For now, rather than spawning at intervals, just spawn
-    # when I hit space for easier development
+    # Activate this to spawn aircraft by hitting spacebar
+    # if @kb.key_down.space
+    #   spawn_aircraft(AIRCRAFT_TYPES.sample)
+    # end
     #
-    # if @ticks % @spawn_interval.seconds == 0
-    if @kb.key_down.space
-      spawn_aircraft(AIRCRAFT_TYPES.sample)
+    # Otherwise we will spawn them in waves. The wave system works as follows:
+    #
+    # For example:
+    #  * The waves are spaced out by a random amount from 10 to 15 seconds
+    #  * Each wave contains a random amount from 1 to 3 aircraft
+    #  * Additionally, each aircraft within a given wave are spaced out by a
+    #    random amount from 2 to 4 seconds
+    #
+    # The exact numbers above can be tweaked for different difficulty levels.
+    if @incoming_wave > 0
+      handle_incoming_wave
+    elsif @next_wave_in <= 0
+      release_wave
+    else
+      @next_wave_in -= 1
     end
 
     @aircraft.each(&:tick)
@@ -32,6 +51,27 @@ class ControllerGame
     @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
     @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))
     @game_over = true if @collisions.any?
+  end
+
+  def release_wave
+    @incoming_wave = Numeric.rand(1..3)
+    @wave_spawn_timer = 0
+    # Schedule next wave
+    @next_wave_in = Numeric.rand(10..15).seconds
+  end
+
+  def handle_incoming_wave
+    if @wave_spawn_timer <= 0
+      spawn_aircraft(AIRCRAFT_TYPES.sample)
+      @incoming_wave -= 1
+
+      if @incoming_wave > 0
+        # Time between each aircraft in a wave
+        @wave_spawn_timer = Numeric.rand(2..4).seconds
+      end
+    else
+      @wave_spawn_timer -= 1
+    end
   end
 
   def spawn_aircraft(type)
