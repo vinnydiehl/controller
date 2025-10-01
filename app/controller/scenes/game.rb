@@ -14,11 +14,6 @@ class ControllerGame
     @wave_spawn_timer = 0
 
     load_map("island")
-
-    ##### Test
-    @map.runways.each do |runway|
-      runway.add_departure
-    end
   end
 
   def game_tick
@@ -27,12 +22,17 @@ class ControllerGame
 
     return if @game_over
 
-    # Activate this to spawn aircraft by hitting spacebar, for development
-    if @kb.key_down.space
-      spawn_aircraft(AIRCRAFT_TYPES.sample)
+    # For development
+    # Space to spawn an incoming aircraft, Ctrl+Space to spawn a departure
+    if !GTK.production? && @kb.key_down.space
+      if @kb.key_down_or_held?(:ctrl)
+        spawn_departure
+      else
+        spawn_aircraft(AIRCRAFT_TYPES.sample)
+      end
     end
-    #
-    # Otherwise we will spawn them in waves. The wave system works as follows:
+
+    # Spawn aircraft in waves. The wave system works as follows:
     #
     # For example:
     #  * The waves are spaced out by a random amount from 10 to 15 seconds
@@ -41,13 +41,21 @@ class ControllerGame
     #    random amount from 2 to 4 seconds
     #
     # The exact numbers above can be tweaked for different difficulty levels.
-    # if @incoming_wave > 0
-    #   handle_incoming_wave
-    # elsif @next_wave_in <= 0
-    #   release_wave
-    # else
-    #   @next_wave_in -= 1
-    # end
+    if @incoming_wave > 0
+      handle_incoming_wave
+    elsif @next_wave_in <= 0
+      release_wave
+    else
+      @next_wave_in -= 1
+    end
+
+    # For departure spawns, there is a 50% chance of spawning a departure
+    # every 5 seconds.
+    if @ticks > 0 && @ticks % 10.seconds == 0
+      if rand < 0.5
+        spawn_departure
+      end
+    end
 
     @aircraft.each(&:tick)
     # Score and cull landed/departed aircraft
@@ -119,6 +127,12 @@ class ControllerGame
     end
 
     nil
+  end
+
+  # Add a departure to a random runway that doesn't already have one.
+  # If all runways already have departures, do nothing.
+  def spawn_departure
+    @map.runways.reject(&:departure).sample&.add_departure
   end
 
   def find_circle_collisions(circles)
