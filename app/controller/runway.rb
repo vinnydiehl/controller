@@ -18,7 +18,7 @@ class Runway
   #  * timer: How long you have (in ticks) to depart the aircraft
   def add_departure
     @departure = {
-      direction: :up,
+      direction: ANGLE.keys.sample,
       type: AIRCRAFT_TYPES.select { |t| t[:runway] == type }.sample.type,
       timer: DEPARTURE_TIME,
     }
@@ -42,15 +42,30 @@ class Runway
   def departure_sprite
     x, y = hold_short_point
 
-    {
-      x: x, y: y,
-      w: DEPARTURE_SIZE, h: DEPARTURE_SIZE,
-      angle: @heading + 90,
-      path: "sprites/aircraft/#{departure[:type]}.png",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
-      **RUNWAY_COLORS[type],
-    }
+    [
+      # Direction arrow
+      {
+        x: x, y: y,
+        w: 4, h: 10,
+        angle: ANGLE[@departure[:direction]],
+        path: "sprites/symbology/direction_small.png",
+        # Anchor magic to get it to rotate around the aircraft
+        anchor_x: -1.8,
+        anchor_y: 0.5,
+        angle_anchor_x: -1.8,
+        angle_anchor_y: 0.5,
+      },
+      # Aircraft sprite
+      {
+        x: x, y: y,
+        w: DEPARTURE_SIZE, h: DEPARTURE_SIZE,
+        angle: @heading + 90,
+        path: "sprites/aircraft/#{departure[:type]}.png",
+        anchor_x: 0.5,
+        anchor_y: 0.5,
+        **RUNWAY_COLORS[type],
+      },
+    ]
   end
 
   def hold_short_label

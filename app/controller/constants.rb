@@ -74,3 +74,11 @@ RWY_DEFAULTS = {
 RWY_MIN_LENGTH = RWY_WIDTH * 3
 RWY_SURFACES = [nil, :cement]
 HELI_OPTIONS = [nil, :square, :circle]
+
+# Translates a direction to an angle
+ANGLE = {
+  right: 0,
+  up: 90,
+  left: 180,
+  down: 270,
+}
