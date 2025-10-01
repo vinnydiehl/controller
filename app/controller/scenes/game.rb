@@ -13,6 +13,8 @@ class ControllerGame
     # Timer to track time between aircraft in a given wave
     @wave_spawn_timer = 0
 
+    @warnings = []
+
     load_map("island")
   end
 
@@ -58,23 +60,34 @@ class ControllerGame
     end
 
     @aircraft.each(&:tick)
-    # Score and cull landed/departed aircraft
-    @score += @aircraft.count(&:landed)
-    @aircraft.reject!(&:landed)
-    @score += @aircraft.count(&:departed)
-    @aircraft.reject!(&:departed)
+    handle_scoring
 
-    # Decrement departure timers
+    # Game over if there's a collision
+    @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
+    if @collisions.any?
+      @game_over = true
+      play_sound(:collision)
+      return
+    end
+
+    # Decrement departure timers, game over if one reaches zero
     @map.runways.select(&:departure).each do |runway|
       runway.departure[:timer] -= 1 unless @game_over
       if runway.departure[:timer] <= 0
         @game_over = true
+        play_sound(:departure_failure)
       end
     end
 
-    @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
+    # Find warnings and play sound if there's a new one
+    warnings_orig = @warnings.dup
     @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))
-    @game_over = true if @collisions.any?
+    # If one warning disappears the same frame as a new one appears this
+    # won't play a new sound, but I can't think of a better way to
+    # do this without extensive modification to the warning system
+    if @warnings.size > warnings_orig.size
+      play_sound(:warning)
+    end
   end
 
   def release_wave
@@ -102,6 +115,7 @@ class ControllerGame
     # Just don't spawn if there's no suitable position
     if (pos = find_spawn_position)
       @aircraft << Aircraft.new(position: pos, **type)
+      play_sound(:aircraft_spawn)
     end
   end
 
@@ -133,6 +147,24 @@ class ControllerGame
   # If all runways already have departures, do nothing.
   def spawn_departure
     @map.runways.reject(&:departure).sample&.add_departure
+    play_sound(:departure_spawn)
+  end
+
+  def handle_scoring
+    # Score and cull landed/departed aircraft
+    count = @aircraft.count(&:landed)
+    @score += count
+    @aircraft.reject!(&:landed)
+    if count > 0
+      play_sound(:land)
+    end
+
+    count = @aircraft.count(&:departed)
+    @score += count
+    @aircraft.reject!(&:departed)
+    if count > 0
+      play_sound(:depart)
+    end
   end
 
   def find_circle_collisions(circles)

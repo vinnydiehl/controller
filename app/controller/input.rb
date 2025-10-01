@@ -24,18 +24,21 @@ class ControllerGame
               departing: runway.departure[:direction],
             )
             runway.depart
+
+            play_sound(:takeoff)
           end
         end
       end
 
       # Otherwise we're trying to vector an aircraft
-
       return unless @aircraft_redirecting
 
       # Clear path if there is one
       @aircraft_redirecting.path = []
       # Cancel landing clearance
       @aircraft_redirecting.cleared_to_land = false
+
+      play_sound(:click_aircraft)
     end
 
     if @mouse.key_held.left && (ac = @aircraft_redirecting) && !ac.cleared_to_land
@@ -62,6 +65,8 @@ class ControllerGame
               ac.cleared_to_land = true
               ac.path.take(FINAL_APPROACH_BUFFER)
               ac.path << runway.position
+
+              play_sound(:clear_for_landing)
 
               return
             end
