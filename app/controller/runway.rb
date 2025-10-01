@@ -1,12 +1,72 @@
 class Runway
   attr_accessor *%i[type name position length tdz_radius heading helipad surface]
+  attr_reader :departure
 
   def initialize(type:, name:, position:, length:, tdz_radius:,
                  heading:, helipad:, surface:)
     @type, @name, @position, @length, @tdz_radius, @heading, @helipad, @surface=
       type, name, position, length, tdz_radius, heading, helipad, surface
 
+    @departure = nil
+
     @mouse = $gtk.args.inputs.mouse
+  end
+
+  # A departure is a Hash containing the following data:
+  #  * direction: The direction it wishes to depart; :up, :down, :right, :left
+  #  * type: The type of aircraft
+  #  * timer: How long you have (in ticks) to depart the aircraft
+  def add_departure
+    @departure = {
+      direction: :up,
+      type: AIRCRAFT_TYPES.select { |t| t[:runway] == type }.sample.type,
+      timer: DEPARTURE_TIME,
+    }
+  end
+
+  def depart
+    @departure = nil
+  end
+
+  # Point just to the side of the runway where departures will appear
+  def hold_short_point
+    distance_from_center = (RWY_WIDTH / 2) + HOLD_SHORT_DISTANCE
+    angle = (@heading - 90).to_radians
+
+    [
+      @position.x + Math.cos(angle) * distance_from_center,
+      @position.y + Math.sin(angle) * distance_from_center,
+    ]
+  end
+
+  def departure_sprite
+    x, y = hold_short_point
+
+    {
+      x: x, y: y,
+      w: DEPARTURE_SIZE, h: DEPARTURE_SIZE,
+      angle: @heading + 90,
+      path: "sprites/aircraft/#{departure[:type]}.png",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      **RUNWAY_COLORS[type],
+    }
+  end
+
+  def hold_short_label
+    x, y = hold_short_point
+    angle = @heading.to_radians
+    x += Math.cos(angle) * HOLD_SHORT_LABEL_PADDING
+    y += Math.sin(angle) * HOLD_SHORT_LABEL_PADDING
+
+    {
+      x: x, y: y,
+      text: (@departure.timer / 60).ceil,
+      size_px: HOLD_SHORT_LABEL_SIZE,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      **WHITE,
+    }
   end
 
   def mouse_in_tdz?

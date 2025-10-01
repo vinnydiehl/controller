@@ -4,6 +4,7 @@ class ControllerGame
     render_score
 
     render_runways
+    render_departures
 
     if @collisions.any?
       render_collisions
@@ -30,6 +31,11 @@ class ControllerGame
       anchor_y: 0.5,
       **WHITE,
     )
+  end
+
+  def render_departures
+    @primitives << @map.runways.select(&:departure).map(&:departure_sprite)
+    @primitives << @map.runways.select(&:departure).map(&:hold_short_label)
   end
 
   def render_collisions

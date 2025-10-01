@@ -14,6 +14,11 @@ class ControllerGame
     @wave_spawn_timer = 0
 
     load_map("island")
+
+    ##### Test
+    @map.runways.each do |runway|
+      runway.add_departure
+    end
   end
 
   def game_tick
@@ -22,10 +27,10 @@ class ControllerGame
 
     return if @game_over
 
-    # Activate this to spawn aircraft by hitting spacebar
-    # if @kb.key_down.space
-    #   spawn_aircraft(AIRCRAFT_TYPES.sample)
-    # end
+    # Activate this to spawn aircraft by hitting spacebar, for development
+    if @kb.key_down.space
+      spawn_aircraft(AIRCRAFT_TYPES.sample)
+    end
     #
     # Otherwise we will spawn them in waves. The wave system works as follows:
     #
@@ -36,13 +41,13 @@ class ControllerGame
     #    random amount from 2 to 4 seconds
     #
     # The exact numbers above can be tweaked for different difficulty levels.
-    if @incoming_wave > 0
-      handle_incoming_wave
-    elsif @next_wave_in <= 0
-      release_wave
-    else
-      @next_wave_in -= 1
-    end
+    # if @incoming_wave > 0
+    #   handle_incoming_wave
+    # elsif @next_wave_in <= 0
+    #   release_wave
+    # else
+    #   @next_wave_in -= 1
+    # end
 
     @aircraft.each(&:tick)
     @score += @aircraft.count(&:landed)
