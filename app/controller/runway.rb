@@ -1,15 +1,24 @@
 class Runway
   attr_accessor *%i[type name position length tdz_radius heading helipad surface]
-  attr_reader :departure
+  attr_reader :departure, :hold_short_point
 
   def initialize(type:, name:, position:, length:, tdz_radius:,
                  heading:, helipad:, surface:)
     @type, @name, @position, @length, @tdz_radius, @heading, @helipad, @surface=
       type, name, position, length, tdz_radius, heading, helipad, surface
 
+    @mouse = $gtk.args.inputs.mouse
+
+    # This will get set if there's a pending departure
     @departure = nil
 
-    @mouse = $gtk.args.inputs.mouse
+    # Point just to the side of the runway where departures will appear
+    distance_from_center = (RWY_WIDTH / 2) + HOLD_SHORT_DISTANCE
+    angle = (@heading - 90).to_radians
+    @hold_short_point = [
+      @position.x + Math.cos(angle) * distance_from_center,
+      @position.y + Math.sin(angle) * distance_from_center,
+    ]
   end
 
   # A departure is a Hash containing the following data:
@@ -28,19 +37,8 @@ class Runway
     @departure = nil
   end
 
-  # Point just to the side of the runway where departures will appear
-  def hold_short_point
-    distance_from_center = (RWY_WIDTH / 2) + HOLD_SHORT_DISTANCE
-    angle = (@heading - 90).to_radians
-
-    [
-      @position.x + Math.cos(angle) * distance_from_center,
-      @position.y + Math.sin(angle) * distance_from_center,
-    ]
-  end
-
   def departure_sprite
-    x, y = hold_short_point
+    x, y = @hold_short_point
 
     [
       # Direction arrow
@@ -69,7 +67,7 @@ class Runway
   end
 
   def hold_short_label
-    x, y = hold_short_point
+    x, y = @hold_short_point
     angle = @heading.to_radians
     x += Math.cos(angle) * HOLD_SHORT_LABEL_PADDING
     y += Math.sin(angle) * HOLD_SHORT_LABEL_PADDING
