@@ -95,12 +95,29 @@ class Aircraft
   end
 
   def sprite
-    {
-      **rect,
-      path: "sprites/aircraft/#{type}.png",
-      angle: @heading,
-      **RUNWAY_COLORS[@runway_type],
-    }
+    sprites = [
+      {
+        **rect,
+        path: "sprites/aircraft/#{type}.png",
+        angle: @heading,
+        **RUNWAY_COLORS[@runway_type],
+      },
+    ]
+
+    if @departing
+      sprites << {
+        x: @position.x, y: @position.y,
+        w: 8, h: 20,
+        path: "sprites/symbology/direction_large.png",
+        angle: ANGLE[@departing],
+        anchor_x: -2,
+        anchor_y: 0.5,
+        angle_anchor_x: -2,
+        angle_anchor_y: 0.5,
+      }
+    end
+
+    sprites
   end
 
   def path_primitives

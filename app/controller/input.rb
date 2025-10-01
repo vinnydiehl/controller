@@ -21,7 +21,7 @@ class ControllerGame
               position: runway.position,
               **ac_type,
               course: course,
-              departing: true,
+              departing: runway.departure[:direction],
             )
             runway.depart
           end
