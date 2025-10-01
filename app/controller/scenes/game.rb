@@ -52,6 +52,8 @@ class ControllerGame
     @aircraft.each(&:tick)
     @score += @aircraft.count(&:landed)
     @aircraft.reject!(&:landed)
+    @score += @aircraft.count(&:departed)
+    @aircraft.reject!(&:departed)
 
     @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
     @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))

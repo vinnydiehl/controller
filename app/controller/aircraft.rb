@@ -1,7 +1,7 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land landed
                     type speed runway_type vtol]
-  attr_reader :departing
+  attr_reader :departing, :departed
 
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
@@ -39,6 +39,8 @@ class Aircraft
     # once it enters the screen, and will be used in the future for
     # turning the aircraft around if it hits the edge of the screen.
     @offscreen = true
+
+    @departed = false
   end
 
   def tick
@@ -71,6 +73,7 @@ class Aircraft
     end
 
     handle_screen_edge_collision
+    handle_departure
     ease_heading
   end
 
@@ -152,24 +155,40 @@ class Aircraft
 
     # Left/right walls
     if @position.x <= 0
-      @position.x = 0
-      @course = 180 - @course
-      bounced = true
+      if @departing == :left
+        @offscreen = true
+      else
+        @position.x = 0
+        @course = 180 - @course
+        bounced = true
+      end
     elsif @position.x >= @screen.w
-      @position.x = @screen.w
-      @course = 180 - @course
-      bounced = true
+      if @departing == :right
+        @offscreen = true
+      else
+        @position.x = @screen.w
+        @course = 180 - @course
+        bounced = true
+      end
     end
 
     # Top/bottom walls
     if @position.y <= 0
-      @position.y = 0
-      @course = -@course
-      bounced = true
+      if @departing == :down
+        @offscreen = true
+      else
+        @position.y = 0
+        @course = -@course
+        bounced = true
+      end
     elsif @position.y >= @screen.h
-      @position.y = @screen.h
-      @course = -@course
-      bounced = true
+      if @departing == :up
+        @offscreen = true
+      else
+        @position.y = @screen.h
+        @course = -@course
+        bounced = true
+      end
     end
 
     if bounced
@@ -178,6 +197,19 @@ class Aircraft
       # If path extends off the screen it will get stuck on the edge,
       # so reset it
       @path = []
+    end
+  end
+
+  def handle_departure
+    return unless @departing && @offscreen
+
+    diameter = AIRCRAFT_SIZE / 2
+
+    if @position.x + diameter <= 0 ||
+       @position.x - diameter >= @screen.w ||
+       @position.y + diameter <= 0 ||
+       @position.y - diameter >= @screen.h
+      @departed = true
     end
   end
 

@@ -67,7 +67,7 @@ class ControllerGame
   end
 
   def render_incoming_alerts
-    @aircraft.reject { |ac| ac.rect.intersect_rect?(@screen) }
+    @aircraft.reject { |ac| ac.rect.intersect_rect?(@screen) || ac.departing }
              .each_with_index do |aircraft, i|
       render_incoming_alert(aircraft, i)
     end
