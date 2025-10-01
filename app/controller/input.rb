@@ -1,5 +1,7 @@
 class ControllerGame
   def handle_mouse_inputs
+    return if @game_over
+
     if @mouse.key_down.left
       # See if we're clicking on an airborne aircraft
       @aircraft_redirecting = @aircraft.find do |ac|
