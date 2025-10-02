@@ -72,7 +72,7 @@ class Runway
     x += Math.cos(angle) * HOLD_SHORT_LABEL_PADDING
     y += Math.sin(angle) * HOLD_SHORT_LABEL_PADDING
 
-    seconds = (@departure.timer / 60).ceil
+    seconds = @departure.timer.to_seconds
 
     {
       x: x, y: y,

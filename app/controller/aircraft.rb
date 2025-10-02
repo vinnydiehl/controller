@@ -41,6 +41,12 @@ class Aircraft
     @offscreen = true
 
     @departed = false
+
+    # Is this an emergency aircraft?
+    unless @departing
+      ##### Always set for testing, later we'll decide this randomly
+      @emergency = 30.seconds
+    end
   end
 
   def tick
@@ -77,6 +83,10 @@ class Aircraft
     ease_heading
   end
 
+  def emergency?
+    @emergency
+  end
+
   def rect
     {
       x: @position.x - AIRCRAFT_RADIUS,
@@ -110,6 +120,7 @@ class Aircraft
     primitives = [sprite]
 
     if @departing
+      # Departure direction arrow
       primitives << {
         x: @position.x, y: @position.y,
         w: 8, h: 20,
@@ -120,6 +131,27 @@ class Aircraft
         angle_anchor_x: -2,
         angle_anchor_y: 0.5,
       }
+    elsif @emergency
+      seconds = @emergency.to_seconds
+
+      primitives << [
+        # Exclamation point
+        {
+          x: @position.x - AIRCRAFT_RADIUS, y: @position.y,
+          text: "!",
+          anchor_x: 1,
+          anchor_y: 0.5,
+          **RED,
+        },
+        # Timer
+        {
+          x: @position.x + AIRCRAFT_RADIUS, y: @position.y,
+          text: seconds,
+          anchor_x: 0,
+          anchor_y: 0.5,
+          **(seconds > 10 ? WHITE : RED),
+        },
+      ]
     end
 
     primitives
