@@ -37,7 +37,7 @@ class Runway
     @departure = nil
   end
 
-  def departure_sprite
+  def departure_primitives
     x, y = @hold_short_point
 
     [

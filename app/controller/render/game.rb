@@ -34,7 +34,7 @@ class ControllerGame
   end
 
   def render_departures
-    @primitives << @map.runways.select(&:departure).map(&:departure_sprite)
+    @primitives << @map.runways.select(&:departure).map(&:departure_primitives)
     @primitives << @map.runways.select(&:departure).map(&:hold_short_label)
   end
 
@@ -63,7 +63,7 @@ class ControllerGame
   end
 
   def render_aircraft
-    @primitives << @aircraft.map(&:sprite)
+    @primitives << @aircraft.map(&:primitives)
   end
 
   def render_incoming_alerts
@@ -85,7 +85,7 @@ class ControllerGame
         w: 60, h: 40,
         path: "sprites/symbology/incoming.png",
       },
-      aircraft.sprite[0].merge(x: 20 + ac_padding, y: ac_padding, angle: 0),
+      aircraft.sprite.merge(x: 20 + ac_padding, y: ac_padding, angle: 0),
     ]
 
     # We need to figure out where on the screen the aircraft is going

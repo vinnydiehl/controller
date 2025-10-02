@@ -98,17 +98,19 @@ class Aircraft
   end
 
   def sprite
-    sprites = [
-      {
-        **rect,
-        path: "sprites/aircraft/#{type}.png",
-        angle: @heading,
-        **RUNWAY_COLORS[@runway_type],
-      },
-    ]
+    {
+      **rect,
+      path: "sprites/aircraft/#{type}.png",
+      angle: @heading,
+      **RUNWAY_COLORS[@runway_type],
+    }
+  end
+
+  def primitives
+    primitives = [sprite]
 
     if @departing
-      sprites << {
+      primitives << {
         x: @position.x, y: @position.y,
         w: 8, h: 20,
         path: "sprites/symbology/direction_large.png",
@@ -120,7 +122,7 @@ class Aircraft
       }
     end
 
-    sprites
+    primitives
   end
 
   def path_primitives
