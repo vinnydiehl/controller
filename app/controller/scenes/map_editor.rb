@@ -49,6 +49,7 @@ class ControllerGame
       on_clicked: lambda do |_mouse, input|
         input.focus
         @map_id_input.blur
+        @runway_name_input.blur
       end,
       max_length: 40,
     )
@@ -72,6 +73,7 @@ class ControllerGame
       on_clicked: lambda do |_mouse, input|
         input.focus
         @map_name_input.blur
+        @runway_name_input.blur
       end,
       max_length: 40,
     )
