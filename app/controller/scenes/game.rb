@@ -43,21 +43,21 @@ class ControllerGame
     #    random amount from 2 to 4 seconds
     #
     # The exact numbers above can be tweaked for different difficulty levels.
-    # if @incoming_wave > 0
-    #   handle_incoming_wave
-    # elsif @next_wave_in <= 0
-    #   release_wave
-    # else
-    #   @next_wave_in -= 1
-    # end
-    #
-    # # For departure spawns, there is a 50% chance of spawning a departure
-    # # every 5 seconds.
-    # if @ticks > 0 && @ticks % 10.seconds == 0
-    #   if rand < 0.5
-    #     spawn_departure
-    #   end
-    # end
+    if @incoming_wave > 0
+      handle_incoming_wave
+    elsif @next_wave_in <= 0
+      release_wave
+    else
+      @next_wave_in -= 1
+    end
+
+    # For departure spawns, there is a 50% chance of spawning a departure
+    # every 5 seconds.
+    if @ticks > 0 && @ticks % 10.seconds == 0
+      if rand < 0.5
+        spawn_departure
+      end
+    end
 
     @aircraft.each(&:tick)
     handle_scoring
@@ -118,8 +118,8 @@ class ControllerGame
     ac = Aircraft.new(position: pos, **type)
     @aircraft << ac
 
-    ##### Always true for testing
-    set_emergency = true
+    # 10% of aircraft are emergency aircraft
+    set_emergency = rand < 0.1
 
     if set_emergency
       # Find nearest runway of the appropriate type
