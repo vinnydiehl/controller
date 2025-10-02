@@ -1,22 +1,18 @@
-WHITE = {
-  r: 255, g: 255, b: 255,
-}
+def grayscale(v)
+  { r: v, g: v, b: v }
+end
+
+WHITE = grayscale(255)
 RED = {
   r: 255, g: 0, b: 0,
 }
 
-BORDER_COLOR = {
-  r: 40, g: 40, b: 40,
-}
+BORDER_COLOR = grayscale(40)
 
-BACKGROUND_COLOR = {
-  r: 63, g: 63, b: 63,
-}
+BACKGROUND_COLOR = grayscale(63)
 
 PATH_COLOR = WHITE
-CLEARED_TO_LAND_PATH_COLOR = {
-  r: 255, g: 0, b: 0,
-}
+CLEARED_TO_LAND_PATH_COLOR = RED
 
 INCOMING_COLOR = {
   r: 89, g: 86, b: 82,
@@ -26,21 +22,19 @@ INCOMING_EMERGENCY_COLOR = {
 }
 
 COLLISION_COLOR = {
-  r: 255, g: 0, b: 0, a: 150,
+  **RED, a: 150,
 }
 
 INPUT_COLORS = {
-  background_color: [80] * 3,
-  blurred_background_color: [80] * 3,
-  cursor_color: [150] * 3,
-  text_color: [230] * 3,
-  selection_color: [30] * 3,
+  background_color: grayscale(80),
+  blurred_background_color: grayscale(80),
+  cursor_color: grayscale(150),
+  text_color: grayscale(230),
+  selection_color: grayscale(30),
 }
 
 MAP_EDITOR_ACTIVE_COLOR = WHITE
-MAP_EDITOR_INPUT_BG_COLOR = {
-  r: 50, g: 50, b: 50,
-}
+MAP_EDITOR_INPUT_BG_COLOR = grayscale(50)
 MAP_EDITOR_INPUT_TEXT_COLOR = WHITE
 
 RUNWAY_COLORS = {
