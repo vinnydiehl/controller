@@ -1,5 +1,6 @@
 SCENES = %w[game map_editor].freeze
 
+require "lib/core_ext/numeric.rb"
 %w[tiled/tiled json input].each { |f| require "lib/#{f}.rb" }
 
 %w[constants colors button controller
