@@ -18,6 +18,13 @@ CLEARED_TO_LAND_PATH_COLOR = {
   r: 255, g: 0, b: 0,
 }
 
+INCOMING_COLOR = {
+  r: 89, g: 86, b: 82,
+}
+INCOMING_EMERGENCY_COLOR = {
+  r: 125, g: 22, b: 22,
+}
+
 COLLISION_COLOR = {
   r: 255, g: 0, b: 0, a: 150,
 }
