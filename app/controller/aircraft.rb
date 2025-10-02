@@ -1,10 +1,35 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
                     landed type speed runway_type vtol]
-  attr_reader :departing, :departed
+  attr_reader *%i[course departing departed entry_point incoming_marker_angle]
 
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
+
+  # Lines for the edges of the screen, the order of these matters
+  # for setting the angle of the incoming marker
+  SCREEN_LINES = [
+    # Left
+    {
+      x: 0, y: 0,
+      x2: 0, y2: $grid.h,
+    },
+    # Bottom
+    {
+      x: 0, y: 0,
+      x2: $grid.w, y2: 0,
+    },
+    # Right
+    {
+      x: $grid.w, y: 0,
+      x2: $grid.w, y2: $grid.h,
+    },
+    # Top
+    {
+      x: 0, y: $grid.h,
+      x2: $grid.w, y2: $grid.h,
+    },
+  ]
 
   def initialize(position:, type:, speed:, runway:, vtol:,
                  course: nil, departing: nil)
@@ -41,6 +66,25 @@ class Aircraft
     @offscreen = true
 
     @departed = false
+
+    unless @departing
+      # We need to figure out where on the screen the aircraft is going
+      # to appear based on the angle... we'll use line intersection.
+      # Here's a line from aircraft to center of screen
+      ac_line = {
+        x: @position.x,
+        y: @position.y,
+        x2: @screen.w / 2, y2: @screen.h / 2,
+      }
+
+      # Now find the first intersection
+      SCREEN_LINES.each_with_index do |sl, i|
+        if (@entry_point = Geometry.line_intersect(sl, ac_line))
+          @incoming_marker_angle = i * 90
+          break
+        end
+      end
+    end
   end
 
   def tick

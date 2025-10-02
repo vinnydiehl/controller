@@ -91,53 +91,10 @@ class ControllerGame
       aircraft.sprite.merge(x: 20 + ac_padding, y: ac_padding, angle: 0),
     ]
 
-    # We need to figure out where on the screen the aircraft is going
-    # to appear based on the angle... we'll use line intersection.
-    # Here's a line from aircraft to center of screen
-    ac_line = {
-      x: aircraft.position.x,
-      y: aircraft.position.y,
-      x2: @cx, y2: @cy,
-    }
-    # Lines for the edges of the screen, the order of these matters
-    # for setting the angle later
-    screen_lines = [
-      # Left
-      {
-        x: 0, y: 0,
-        x2: 0, y2: @screen.h,
-      },
-      # Bottom
-      {
-        x: 0, y: 0,
-        x2: @screen.w, y2: 0,
-      },
-      # Right
-      {
-        x: @screen.w, y: 0,
-        x2: @screen.w, y2: @screen.h,
-      },
-      # Top
-      {
-        x: 0, y: @screen.h,
-        x2: @screen.w, y2: @screen.h,
-      },
-    ]
-    # Now find the first intersection
-    intersection = nil
-    angle = 0
-    screen_lines.each_with_index do |sl, i|
-      if (intersection = Geometry.line_intersect(sl, ac_line))
-        angle = i * 90
-        break
-      end
-    end
-
-    # Aaaand finally we can draw it
     @primitives << {
-      x: intersection.x, y: intersection.y,
+      x: aircraft.entry_point.x, y: aircraft.entry_point.y,
       w: 60, h: 40,
-      angle: angle,
+      angle: aircraft.incoming_marker_angle,
       anchor_x: 0,
       anchor_y: 0.5,
       angle_anchor_x: 0,
