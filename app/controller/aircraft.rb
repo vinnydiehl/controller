@@ -1,6 +1,6 @@
 class Aircraft
-  attr_accessor *%i[position path cleared_to_land landed
-                    type speed runway_type vtol]
+  attr_accessor *%i[position path cleared_to_land emergency
+                    landed type speed runway_type vtol]
   attr_reader :departing, :departed
 
   # Degrees/frame for smoothing sprite angle
@@ -41,12 +41,6 @@ class Aircraft
     @offscreen = true
 
     @departed = false
-
-    # Is this an emergency aircraft?
-    unless @departing
-      ##### Always set for testing, later we'll decide this randomly
-      @emergency = 30.seconds
-    end
   end
 
   def tick
@@ -78,13 +72,13 @@ class Aircraft
       move_along_heading
     end
 
+    if @emergency
+      @emergency -= 1
+    end
+
     handle_screen_edge_collision
     handle_departure
     ease_heading
-  end
-
-  def emergency?
-    @emergency
   end
 
   def rect

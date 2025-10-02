@@ -113,10 +113,27 @@ class ControllerGame
 
   def spawn_aircraft(type)
     # Just don't spawn if there's no suitable position
-    if (pos = find_spawn_position)
-      @aircraft << Aircraft.new(position: pos, **type)
-      play_sound(:aircraft_spawn)
+    return unless (pos = find_spawn_position)
+
+    ac = Aircraft.new(position: pos, **type)
+    @aircraft << ac
+
+    ##### Always true for testing
+    set_emergency = true
+
+    if set_emergency
+      # Find nearest runway of the appropriate type
+      nearest_runway = @map.runways.select { |r| r.type == ac.runway_type }
+                                   .min_by { |r| Geometry.distance(r.position, pos) }
+
+      # How long will it take to reach that runway?
+      seconds_to_reach = Geometry.distance(pos, nearest_runway.position) / ac.speed
+
+      # Set the timer with a little extra time
+      ac.emergency = (seconds_to_reach + EMERGENCY_TIME_BUFFER).seconds
     end
+
+    play_sound(:aircraft_spawn)
   end
 
   # Returns a random spawn position that is a reasonable distance away from

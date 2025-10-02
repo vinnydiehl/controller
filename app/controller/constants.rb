@@ -52,6 +52,11 @@ FINAL_APPROACH_BUFFER = 5
 # +/- degrees for acceptable final approach runway alignment
 FINAL_APPROACH_TOLERANCE = 45
 
+# We calculate how much time it takes an emergency aircraft to reach
+# the nearest runway. This is how much extra time the player should get,
+# in seconds
+EMERGENCY_TIME_BUFFER = 5
+
 # Runway rendering
 RWY_WIDTH = 32
 RWY_MIDDLE_TILE_WIDTH = RWY_WIDTH / 8
