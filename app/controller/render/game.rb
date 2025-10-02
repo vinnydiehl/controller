@@ -78,12 +78,15 @@ class ControllerGame
     @outputs[target].w = 60
     @outputs[target].h = 40
 
+    filename = "incoming"
+    filename += "_emergency" if aircraft.emergency
+
     ac_padding = (40 - AIRCRAFT_SIZE) / 2
     @outputs[target].primitives << [
       {
         x: 0, y: 0,
         w: 60, h: 40,
-        path: "sprites/symbology/incoming.png",
+        path: "sprites/symbology/#{filename}.png",
       },
       aircraft.sprite.merge(x: 20 + ac_padding, y: ac_padding, angle: 0),
     ]

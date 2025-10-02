@@ -133,7 +133,7 @@ class ControllerGame
       ac.emergency = (seconds_to_reach + EMERGENCY_TIME_BUFFER).seconds
     end
 
-    play_sound(:aircraft_spawn)
+    play_sound(set_emergency ? :emergency_spawn : :aircraft_spawn)
   end
 
   # Returns a random spawn position that is a reasonable distance away from
