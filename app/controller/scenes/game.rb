@@ -70,12 +70,20 @@ class ControllerGame
       return
     end
 
+    # Game over if an emergency aircraft timer reaches zero
+    if @aircraft.select(&:emergency).any? { |ac| ac.emergency <= 0 }
+      @game_over = true
+      play_sound(:collision)
+      return
+    end
+
     # Decrement departure timers, game over if one reaches zero
     @map.runways.select(&:departure).each do |runway|
       runway.departure[:timer] -= 1 unless @game_over
       if runway.departure[:timer] <= 0
         @game_over = true
         play_sound(:departure_failure)
+        return
       end
     end
 
