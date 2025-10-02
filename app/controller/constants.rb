@@ -6,7 +6,7 @@ AIRCRAFT_TYPES = [
     vtol: false,
   },
   {
-    type: :regional_jet,
+    type: :turboprop,
     speed: 20,
     runway: :red,
     vtol: false,
