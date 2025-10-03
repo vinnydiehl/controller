@@ -117,7 +117,7 @@ class ControllerGame
         h: 0.5,
       ).merge(primitive_marker: :solid, type: type, **color)
     end
-    @runway_surface_buttons = RWY_SURFACES.map.with_index do |surface, i|
+    @runway_surface_buttons = SURFACE_INCREMENT.keys.map.with_index do |surface, i|
       Layout.rect(
         row: 11.5,
         col: 1.5 + (0.5 * i),
@@ -310,9 +310,10 @@ class ControllerGame
       raw_length =
         Geometry.distance(@active_runway.position, @mouse.position) + RWY_WIDTH
       snap_base = raw_length - (RWY_WIDTH * 2)
-      snap_tiles = (snap_base.to_f / RWY_MIDDLE_TILE_WIDTH).round
+      middle_width = SURFACE_INCREMENT[@active_runway.surface]
+      snap_tiles = (snap_base.to_f / middle_width).round
       @active_runway.length = [
-        (snap_tiles * RWY_MIDDLE_TILE_WIDTH) + (RWY_WIDTH * 2),
+        (snap_tiles * middle_width) + (RWY_WIDTH * 2),
         RWY_MIN_LENGTH,
       ].max
     end

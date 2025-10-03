@@ -31,6 +31,13 @@ AIRCRAFT_TYPES = [
   },
 ]
 
+# Size of runway surface middle sprites
+SURFACE_INCREMENT = {
+  nil => 1,
+  cement: 4,
+  grass: 8,
+}
+
 AIRCRAFT_SIZE = 32
 AIRCRAFT_RADIUS = AIRCRAFT_SIZE / 2
 
@@ -59,7 +66,6 @@ EMERGENCY_TIME_BUFFER = 5
 
 # Runway rendering
 RWY_WIDTH = 32
-RWY_MIDDLE_TILE_WIDTH = RWY_WIDTH / 8
 
 # Departing aircraft
 DEPARTURE_TIME = 60.seconds
@@ -77,7 +83,6 @@ RWY_DEFAULTS = {
   surface: :cement,
 }
 RWY_MIN_LENGTH = RWY_WIDTH * 3
-RWY_SURFACES = [nil, :cement]
 HELI_OPTIONS = [nil, :square, :circle]
 
 # Translates a direction to an angle

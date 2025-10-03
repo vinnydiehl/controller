@@ -26,6 +26,8 @@ class ControllerGame
           path: "sprites/runway/surfaces/#{runway.surface}/#{runway.helipad}.png"
         }
       else
+        middle_width = SURFACE_INCREMENT[runway.surface]
+
         @outputs[target].primitives << [
           # Approach end
           {
@@ -40,10 +42,10 @@ class ControllerGame
             path: "sprites/runway/surfaces/#{runway.surface}/der.png",
           },
         ]
-        (middle_length / RWY_MIDDLE_TILE_WIDTH).to_i.times do |i|
+        (middle_length / middle_width).to_i.times do |i|
           @outputs[target].primitives << {
-            x: RWY_WIDTH + (RWY_MIDDLE_TILE_WIDTH * i), y: 0,
-            w: RWY_MIDDLE_TILE_WIDTH, h: RWY_WIDTH,
+            x: RWY_WIDTH + (middle_width * i), y: 0,
+            w: middle_width, h: RWY_WIDTH,
             path: "sprites/runway/surfaces/#{runway.surface}/middle.png",
           }
         end

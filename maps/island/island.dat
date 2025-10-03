@@ -34,15 +34,15 @@
       "type": {"@@jm:symbol":"yellow"},
       "name": "14L",
       "position": [
-        256.0,
-        505.0
+        282.0,
+        510.0
       ],
-      "length": 128.0,
+      "length": 144,
       "tdz_radius": 20,
-      "heading": 135.0,
+      "heading": 145.0493485881249,
       "helipad": null,
-      "surface": {"@@jm:symbol":"cement"},
-      "hold_short": {"@@jm:symbol":"left"}
+      "surface": {"@@jm:symbol":"grass"},
+      "hold_short": {"@@jm:symbol":"right"}
     },
     {
       "type": {"@@jm:symbol":"green"},

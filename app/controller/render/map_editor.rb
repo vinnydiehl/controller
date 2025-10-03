@@ -87,7 +87,7 @@ class ControllerGame
       @runway_type_buttons,
       # First surface is nil so only render 1..-1
       @runway_surface_buttons[1..-1].map do |btn|
-        btn.merge(path: "sprites/runway/#{btn.surface}/square.png")
+        btn.merge(path: "sprites/runway/surfaces/#{btn.surface}/square.png")
       end,
       # Border
       @runway_input_box.merge(primitive_marker: :border, **BORDER_COLOR),
@@ -104,7 +104,8 @@ class ControllerGame
     # Border around active runway surface (appears under surface button)
     @primitives << Layout.rect(
       row: 11.5,
-      col: 1.5 + (0.5 * RWY_SURFACES.find_index { |t| t == @active_runway.surface }),
+      col: 1.5 +
+           (0.5 * SURFACE_INCREMENT.keys.find_index { |t| t == @active_runway.surface }),
       w: 0.5,
       h: 0.5,
     ).merge(primitive_marker: :border, **WHITE)
