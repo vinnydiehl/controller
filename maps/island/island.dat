@@ -13,7 +13,8 @@
       "tdz_radius": 20,
       "heading": 140.656215634516,
       "helipad": null,
-      "surface": {"@@jm:symbol":"cement"}
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": {"@@jm:symbol":"left"}
     },
     {
       "type": {"@@jm:symbol":"red"},
@@ -26,7 +27,8 @@
       "tdz_radius": 20,
       "heading": 36.11934084947975,
       "helipad": null,
-      "surface": {"@@jm:symbol":"cement"}
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": {"@@jm:symbol":"right"}
     },
     {
       "type": {"@@jm:symbol":"yellow"},
@@ -39,7 +41,8 @@
       "tdz_radius": 20,
       "heading": 135.0,
       "helipad": null,
-      "surface": {"@@jm:symbol":"cement"}
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": {"@@jm:symbol":"left"}
     },
     {
       "type": {"@@jm:symbol":"green"},
@@ -52,7 +55,8 @@
       "tdz_radius": 20,
       "heading": 180.0,
       "helipad": null,
-      "surface": null
+      "surface": null,
+      "hold_short": {"@@jm:symbol":"right"}
     },
     {
       "type": {"@@jm:symbol":"orange"},
@@ -65,7 +69,8 @@
       "tdz_radius": 20,
       "heading": 0.0275040592493383,
       "helipad": {"@@jm:symbol":"circle"},
-      "surface": {"@@jm:symbol":"cement"}
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": {"@@jm:symbol":"right"}
     }
   ]
 }

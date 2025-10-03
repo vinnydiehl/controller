@@ -1,20 +1,33 @@
 class Runway
-  attr_accessor *%i[type name position length tdz_radius heading helipad surface]
+  attr_accessor *%i[type name position length tdz_radius
+                    heading helipad surface hold_short]
   attr_reader :departure, :hold_short_point
 
-  def initialize(type:, name:, position:, length:, tdz_radius:,
-                 heading:, helipad:, surface:)
-    @type, @name, @position, @length, @tdz_radius, @heading, @helipad, @surface=
-      type, name, position, length, tdz_radius, heading, helipad, surface
+  # Required kwargs:
+  #  * type: Color of the runway
+  #  * name: Name of the runway
+  #  * position: Array [x, y] of the middle of the TDZ
+  #  * length: End-to-end length in pixels
+  #  * tdz_radius: Radius of the TDZ
+  #  * heading: Direction the runway is pointing (screen angle)
+  #  * helipad: nil if not, :circle or :square if so
+  #  * surface: nil, or name of surface to render
+  #  * hold_short: Side to render departures on, :left or :right
+  def initialize(**kwargs)
+    kwargs.each { |k, v| instance_variable_set("@#{k}", v) }
 
     @mouse = $gtk.args.inputs.mouse
 
     # This will get set if there's a pending departure
     @departure = nil
 
+    set_hold_short_point
+  end
+
+  def set_hold_short_point
     # Point just to the side of the runway where departures will appear
     distance_from_center = (RWY_WIDTH / 2) + HOLD_SHORT_DISTANCE
-    angle = (@heading - 90).to_radians
+    angle = (@heading - (@hold_short == :right ? 90 : -90)).to_radians
     @hold_short_point = [
       @position.x + Math.cos(angle) * distance_from_center,
       @position.y + Math.sin(angle) * distance_from_center,
@@ -54,25 +67,31 @@ class Runway
         angle_anchor_y: 0.5,
       },
       # Aircraft sprite
-      {
-        x: x, y: y,
-        w: DEPARTURE_SIZE, h: DEPARTURE_SIZE,
-        angle: @heading + 90,
-        path: "sprites/aircraft/#{departure[:type]}.png",
-        anchor_x: 0.5,
-        anchor_y: 0.5,
-        **RUNWAY_COLORS[type],
-      },
+      hold_short_sprite(@departure[:type]),
     ]
   end
 
-  def hold_short_label
+  # Sprite for the aircraft holding short. If one isn't specified, it'll
+  # use the first one it can find that can land on that type of runway.
+  def hold_short_sprite(ac_type = AIRCRAFT_TYPES.find { |t| t[:runway] == @type }.type)
+    x, y = @hold_short_point
+
+    {
+      x: x, y: y,
+      w: DEPARTURE_SIZE, h: DEPARTURE_SIZE,
+      angle: @heading + (@hold_short == :right ? 90 : -90),
+      path: "sprites/aircraft/#{ac_type}.png",
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      **RUNWAY_COLORS[@type],
+    }
+  end
+
+  def hold_short_label(seconds = @departure.timer.to_seconds)
     x, y = @hold_short_point
     angle = @heading.to_radians
     x += Math.cos(angle) * HOLD_SHORT_LABEL_PADDING
     y += Math.sin(angle) * HOLD_SHORT_LABEL_PADDING
-
-    seconds = @departure.timer.to_seconds
 
     {
       x: x, y: y,
@@ -88,6 +107,10 @@ class Runway
     @mouse.inside_circle?(@position, @tdz_radius)
   end
 
+  def mouse_in_hold_short?
+    @mouse.inside_circle?(@hold_short_point, DEPARTURE_SIZE / 2)
+  end
+
   def to_h
     {
       type: @type,
@@ -98,6 +121,7 @@ class Runway
       heading: @heading,
       helipad: @helipad,
       surface: @surface,
+      hold_short: @hold_short,
     }
   end
 end

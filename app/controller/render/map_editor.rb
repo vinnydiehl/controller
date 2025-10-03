@@ -4,6 +4,7 @@ class ControllerGame
 
     render_runways
     render_runway_markers
+    render_hold_short
 
     render_map_input
     if @active_runway
@@ -21,6 +22,15 @@ class ControllerGame
     @map.runways.each do |runway|
       render_tdz(runway)
       render_heading(runway)
+    end
+  end
+
+  def render_hold_short
+    @map.runways.each do |runway|
+      @primitives << [
+        runway.hold_short_sprite,
+        runway.hold_short_label(60),
+      ]
     end
   end
 

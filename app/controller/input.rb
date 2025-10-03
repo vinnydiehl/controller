@@ -11,8 +11,7 @@ class ControllerGame
       # Handle click on departure
       if !@aircraft_redirecting
         @map.runways.select(&:departure).each do |runway|
-          if @mouse.position.point_inside_circle?(runway.hold_short_point,
-                                                  DEPARTURE_SIZE / 2)
+          if runway.mouse_in_hold_short?
             ac_type = AIRCRAFT_TYPES.find { |t| t.type == runway.departure.type }
             course = runway.heading
             # The way that helipads are angled, we'll want to depart straight

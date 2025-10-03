@@ -232,6 +232,15 @@ class ControllerGame
     end
 
     if @mouse.key_down.left
+      @map.runways.each do |runway|
+        if runway.mouse_in_hold_short?
+          runway.hold_short = (runway.hold_short == :left ? :right : :left)
+          runway.set_hold_short_point
+          @active_runway = runway
+          return
+        end
+      end
+
       if @active_runway
         # Runway type button click
         if (type = @runway_type_buttons.find { |b| @mouse.intersect_rect?(b) }&.type)
@@ -264,7 +273,8 @@ class ControllerGame
       end
 
       # Unset active runway if we didn't click on one
-      unless (runway = @map.runways.find(&:mouse_in_tdz?))
+      unless (runway = @map.runways.find(&:mouse_in_tdz?)) ||
+             @active_runway&.mouse_in_hold_short?
         @active_runway = nil
       end
 
@@ -273,7 +283,7 @@ class ControllerGame
         # Runway already needs to be active to pick it up,
         # to prevent unintentional dragging
         @runway_held = runway
-      else
+      elsif runway
         @active_runway = runway
         @runway_name_input.value = runway.name
         @runway_name_input.blur
@@ -293,6 +303,7 @@ class ControllerGame
     # Adjust heading and length by right clicking
     if @mouse.key_down_or_held?(:right) && @active_runway
       @active_runway.heading = @active_runway.position.angle_to(@mouse.position)
+      @active_runway.set_hold_short_point
 
       # Snap the length to the nearest multiple of RWY_MIDDLE_TILE_WIDTH,
       # and ensure it's at least RWY_MIN_LENGTH
