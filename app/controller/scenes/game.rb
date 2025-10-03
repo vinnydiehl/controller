@@ -194,8 +194,11 @@ class ControllerGame
   # Add a departure to a random runway that doesn't already have one.
   # If all runways already have departures, do nothing.
   def spawn_departure
-    @map.runways.reject(&:departure).sample&.add_departure
-    play_sound(:departure_spawn)
+    # Guard with an if so the sound doesn't play if a departure
+    # can't spawn
+    if @map.runways.reject(&:departure).sample&.add_departure
+      play_sound(:departure_spawn)
+    end
   end
 
   def handle_scoring
