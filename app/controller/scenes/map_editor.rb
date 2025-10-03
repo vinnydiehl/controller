@@ -293,6 +293,7 @@ class ControllerGame
     # Drag held runway
     if @mouse.key_held.left && @runway_held
       @runway_held.position = [@mouse.x, @mouse.y]
+      @runway_held.set_hold_short_point
     end
 
     # Release held runway
