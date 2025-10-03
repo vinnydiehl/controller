@@ -255,6 +255,7 @@ class ControllerGame
           @active_runway.surface = @runway_surface_buttons.find do |b|
             @mouse.intersect_rect?(b)
           end.surface
+          adjust_runway_length(@active_runway.length)
           return
         end
 
@@ -306,23 +307,27 @@ class ControllerGame
       @active_runway.heading = @active_runway.position.angle_to(@mouse.position)
       @active_runway.set_hold_short_point
 
-      # Snap the length to the nearest multiple of RWY_MIDDLE_TILE_WIDTH,
-      # and ensure it's at least RWY_MIN_LENGTH
-      raw_length =
+      adjust_runway_length(
         Geometry.distance(@active_runway.position, @mouse.position) + RWY_WIDTH
-      snap_base = raw_length - (RWY_WIDTH * 2)
-      middle_width = SURFACE_INCREMENT[@active_runway.surface]
-      snap_tiles = (snap_base.to_f / middle_width).round
-      @active_runway.length = [
-        (snap_tiles * middle_width) + (RWY_WIDTH * 2),
-        RWY_MIN_LENGTH,
-      ].max
+      )
     end
 
     # Scroll to change TDZ radius
     if @active_runway && (d = @mouse.wheel&.y)
       @active_runway.tdz_radius += d
     end
+  end
+
+  # Snap the length to the nearest multiple of the set surface's middle tile width,
+  # and ensure it's at least RWY_MIN_LENGTH
+  def adjust_runway_length(desired_length)
+    snap_base = desired_length - (RWY_WIDTH * 2)
+    middle_width = SURFACE_INCREMENT[@active_runway.surface]
+    snap_tiles = (snap_base.to_f / middle_width).round
+    @active_runway.length = [
+      (snap_tiles * middle_width) + (RWY_WIDTH * 2),
+      RWY_MIN_LENGTH,
+    ].max
   end
 
   def handle_map_editor_kb_inputs
