@@ -23,29 +23,28 @@ class ControllerGame
         @outputs[target].primitives << {
           x: 0, y: 0,
           w: RWY_WIDTH, h: RWY_WIDTH,
-          path: "sprites/runway/#{runway.surface}/#{runway.helipad}.png"
+          path: "sprites/runway/surfaces/#{runway.surface}/#{runway.helipad}.png"
         }
       else
         @outputs[target].primitives << [
-          # Threshold
+          # Approach end
           {
             x: 0, y: 0,
             w: RWY_WIDTH, h: RWY_WIDTH,
-            path: "sprites/runway/#{runway.surface}/end.png",
+            path: "sprites/runway/surfaces/#{runway.surface}/aer.png",
           },
           # Departure end
           {
             x: runway.length - RWY_WIDTH, y: 0,
             w: RWY_WIDTH, h: RWY_WIDTH,
-            path: "sprites/runway/#{runway.surface}/end.png",
-            flip_horizontally: true,
+            path: "sprites/runway/surfaces/#{runway.surface}/der.png",
           },
         ]
         (middle_length / RWY_MIDDLE_TILE_WIDTH).to_i.times do |i|
           @outputs[target].primitives << {
             x: RWY_WIDTH + (RWY_MIDDLE_TILE_WIDTH * i), y: 0,
             w: RWY_MIDDLE_TILE_WIDTH, h: RWY_WIDTH,
-            path: "sprites/runway/#{runway.surface}/middle.png",
+            path: "sprites/runway/surfaces/#{runway.surface}/middle.png",
           }
         end
       end
