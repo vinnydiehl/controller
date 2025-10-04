@@ -220,11 +220,14 @@ class ControllerGame
 
   def handle_scoring
     # Score and cull landed/departed aircraft
-    count = @aircraft.count(&:landed)
-    @score += count
-    @aircraft.reject!(&:landed)
-    if count > 0
-      play_sound(:land)
+    landed = @aircraft.select(&:landed)
+    unless landed.empty?
+      @score += landed.size
+
+      play_sound(:nordo_land) if landed.any?(&:nordo)
+      play_sound(:land) if landed.any? { |a| !a.nordo }
+
+      @aircraft.reject!(&:landed)
     end
 
     count = @aircraft.count(&:departed)
