@@ -34,6 +34,8 @@ class ControllerGame
       # Otherwise we're trying to vector an aircraft
       return unless @aircraft_redirecting
 
+      @aircraft_redirecting.vectoring = true
+
       # Clear path if there is one
       @aircraft_redirecting.path = []
       # Cancel landing clearance
@@ -67,7 +69,7 @@ class ControllerGame
               ac.path.take(FINAL_APPROACH_BUFFER)
               ac.path << runway.position
 
-              ac.smooth_path
+              ac.finalize_path
 
               play_sound(:clear_for_landing)
 
@@ -90,7 +92,7 @@ class ControllerGame
     end
 
     if @mouse.key_up.left && (ac = @aircraft_redirecting)
-      ac.smooth_path
+      ac.finalize_path
     end
   end
 

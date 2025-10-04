@@ -59,7 +59,9 @@ class ControllerGame
   end
 
   def render_paths
-    @primitives << @aircraft.flat_map(&:path_primitives)
+    @primitives << @aircraft.flat_map do |ac|
+      ac.vectoring ? ac.dotted_path_primitives : ac.path_primitives
+    end
   end
 
   def render_aircraft

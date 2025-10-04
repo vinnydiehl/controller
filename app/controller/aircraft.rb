@@ -1,6 +1,6 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
-                    landed nordo type speed runway_type vtol]
+                    landed nordo type speed runway_type vectoring vtol]
   attr_reader *%i[course departing departed entry_point incoming_marker_angle]
 
   # Degrees/frame for smoothing sprite angle
@@ -85,11 +85,21 @@ class Aircraft
         end
       end
     end
+
+    # Cache for dotted path
+    @dotted_path_primitives = []
   end
 
   def tick
     if @offscreen && @position.inside_rect?(@screen)
       @offscreen = false
+    end
+
+    # Remove dotted path points the aircraft has already passed
+    if @vectoring && @dotted_path_primitives.any?
+      @dotted_path_primitives.reject! do |dot|
+        Geometry.distance(dot, @position) < DOT_SPACING / 2
+      end
     end
 
     if @path.any?
@@ -319,7 +329,64 @@ class Aircraft
     end
   end
 
+  def dotted_path_primitives
+    update_dotted_path
+  end
+
+  def clear_dots
+    @dotted_path_primitives = []
+  end
+
+  def finalize_path
+    clear_dots
+    @vectoring = false
+    smooth_path
+  end
+
   private
+
+  def update_dotted_path
+    @dotted_path_primitives ||= []
+    @last_dot_index ||= 0
+
+    return if @path.empty?
+
+    # Start from last path segment we processed
+    path_points = [[@position.x, @position.y], *@path]
+
+    # Keep track of remaining distance to place next dot
+    @dot_accum ||= 0.0
+
+    # Process new segments only
+    (@last_dot_index...(path_points.size - 1)).each do |i|
+      start_pt = path_points[i]
+      end_pt = path_points[i + 1]
+
+      seg_vec = [end_pt[0] - start_pt[0], end_pt[1] - start_pt[1]]
+      seg_len = Math.sqrt(seg_vec[0]**2 + seg_vec[1]**2)
+      next if seg_len.zero?
+
+      dir = [seg_vec[0] / seg_len, seg_vec[1] / seg_len]
+
+      distance = @dot_accum
+      while distance < seg_len
+        @dotted_path_primitives << {
+          x: start_pt[0] + dir[0] * distance,
+          y: start_pt[1] + dir[1] * distance,
+          w: PATH_DOT_SIZE,
+          h: PATH_DOT_SIZE,
+          anchor_x: 0.5,
+          anchor_y: 0.5,
+          path: "sprites/symbology/path_dot.png",
+        }
+        distance += DOT_SPACING
+      end
+      @dot_accum = distance - seg_len
+    end
+
+    @last_dot_index = path_points.size - 1
+    @dotted_path_primitives
+  end
 
   def corner_angle(p0, p1, p2)
     v1 = [p0[0] - p1[0], p0[1] - p1[1]]

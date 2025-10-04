@@ -53,6 +53,9 @@ MAX_CURVE_STEPS = 10
 # How much to flatten the corner, from 0-1
 CORNER_FLATTEN = 0.5
 
+PATH_DOT_SIZE = 8
+DOT_SPACING = PATH_DOT_SIZE * 3
+
 # How far off the screen an aircraft spawns
 SPAWN_PADDING = AIRCRAFT_SIZE * 3
 # For spacing out spawns. Testing with a retry limit of 10 I could
