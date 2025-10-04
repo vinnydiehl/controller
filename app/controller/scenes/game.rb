@@ -126,16 +126,19 @@ class ControllerGame
     ac = Aircraft.new(position: pos, **type)
     @aircraft << ac
 
-    # Find nearest runway of the appropriate type, we'll need this if the
+    # Find all runways of the appropriate type, we'll need these if the
     # aircraft is emergency or NORDO
-    nearest_runway = @map.runways.select { |r| r.type == ac.runway_type }
-                                 .min_by { |r| Geometry.distance(r.position, pos) }
+    available_runways = @map.runways.select { |r| r.type == ac.runway_type }
 
     # 10% of aircraft are emergency aircraft
     # set_emergency = rand < 0.1
     #
     # if set_emergency
-    #   # How long will it take to reach that runway?
+    #   nearest_runway = available_runways.min_by do |r|
+    #     Geometry.distance(r.position, pos)
+    #   end
+    #
+    #   # How long will it take to reach the nearest runway?
     #   # This is calculated in 2 legs, from spawn to the edge of the screen, then from
     #   # edge of the screen to the runway. That way if the aircraft is spawned going
     #   # the "wrong way" before the player is able to redirect it, the player isn't
@@ -172,6 +175,13 @@ class ControllerGame
 
     if set_nordo
       ac.nordo = true
+      # Pick a random available runway to track towards
+      nordo_runway = available_runways.sample
+
+      ac.path << ac.position
+      ac.path << nordo_runway.position
+
+      ac.cleared_to_land = true
     end
 
     # NORDO aircraft have no incoming notification
