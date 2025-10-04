@@ -1,6 +1,6 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
-                    landed type speed runway_type vtol]
+                    landed nordo type speed runway_type vtol]
   attr_reader *%i[course departing departed entry_point incoming_marker_angle]
 
   # Degrees/frame for smoothing sprite angle
@@ -125,6 +125,78 @@ class Aircraft
     ease_heading
   end
 
+  # Make the aircraft smoothly pathfind towards +runway+ and land there.
+  def pathfind_to(runway)
+    # Pixels from runway where alignment begins (longitudinal bias).
+    # If the aircraft is VTOL, this is 0 as the final approach
+    # course doesn't matter.
+    final_dist = vtol ? 0.0 : 300.0
+    # Lateral offset to shape curved approach
+    curve_offset = 40
+    # Bezier interpolation density
+    steps = 20
+
+    # Geometry setup
+    heading_rad = runway.heading.to_radians
+    runway_dir = [Math.cos(heading_rad), Math.sin(heading_rad)]
+    # Perpendicular vector (left/right)
+    perp_dir = [-runway_dir[1], runway_dir[0]]
+
+    # Point behind runway along its heading (start of final approach)
+    final_point = [
+      runway.position.x - runway_dir[0] * final_dist,
+      runway.position.y - runway_dir[1] * final_dist,
+    ]
+
+    # Determine aircraft’s side relative to runway heading (lateral bias
+    # for correct curvature)
+    dx, dy = position.x - runway.position.x, position.y - runway.position.y
+    side = ((runway_dir[0] * dy) - (runway_dir[1] * dx)).positive? ? 1 : -1
+
+    # Bezier control points
+    dist = Geometry.distance(position, final_point)
+    entry_vec = Geometry.vec2_normalize(Geometry.vec2_subtract(final_point, position))
+    control_points = [
+      Geometry.vec2_add(
+        position,
+        Geometry.vec2_add(
+          Geometry.vec2_scale(entry_vec, 0.3 * dist),
+          {
+            x: perp_dir[0] * curve_offset * 0.8 * side,
+            y: perp_dir[1] * curve_offset * 0.8 * side,
+          },
+        )
+      ),
+      {
+        x: final_point[0] + perp_dir[0] * curve_offset * 0.4 * side,
+        y: final_point[1] + perp_dir[1] * curve_offset * 0.4 * side,
+      },
+    ]
+
+    p0 = { x: position.x, y: position.y }
+    p3 = { x: runway.position.x, y: runway.position.y }
+
+    # Cubic Bezier interpolation
+    @path = (0..steps).map do |i|
+      t = i.to_f / steps
+      omt = 1 - t
+
+      x = (omt**3 * p0[:x]) +
+          (3 * omt**2 * t * control_points[0][:x]) +
+          (3 * omt * t**2 * control_points[1][:x]) +
+          (t**3 * p3[:x])
+
+      y = (omt**3 * p0[:y]) +
+          (3 * omt**2 * t * control_points[0][:y]) +
+          (3 * omt * t**2 * control_points[1][:y]) +
+          (t**3 * p3[:y])
+
+      [x, y]
+    end
+
+    @cleared_to_land = true
+  end
+
   def rect
     {
       x: @position.x - AIRCRAFT_RADIUS,
@@ -150,7 +222,7 @@ class Aircraft
       **rect,
       path: "sprites/aircraft/#{type}.png",
       angle: @heading,
-      **RUNWAY_COLORS[@runway_type],
+      **(@nordo ? WHITE : RUNWAY_COLORS[@runway_type]),
     }
   end
 
@@ -196,7 +268,7 @@ class Aircraft
   end
 
   def path_primitives
-    return if @path.empty?
+    return if @path.empty? || @nordo
 
     [[@position.x, @position.y], *@path].each_cons(2).map do |(x, y), (x2, y2)|
       {

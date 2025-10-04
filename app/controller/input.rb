@@ -4,7 +4,7 @@ class ControllerGame
 
     if @mouse.key_down.left
       # See if we're clicking on an airborne aircraft
-      @aircraft_redirecting = @aircraft.find do |ac|
+      @aircraft_redirecting = @aircraft.reject(&:nordo).find do |ac|
         @mouse.intersect_rect?(ac.rect)
       end
 

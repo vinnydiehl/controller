@@ -126,15 +126,20 @@ class ControllerGame
     ac = Aircraft.new(position: pos, **type)
     @aircraft << ac
 
-    # 10% of aircraft are emergency aircraft
-    set_emergency = rand < 0.1
+    # Find all runways of the appropriate type, we'll need these if the
+    # aircraft is emergency or NORDO
+    available_runways = @map.runways.select { |r| r.type == ac.runway_type }
+
+    # 10% of aircraft are emergency aircraft, but one can't spawn if a
+    # NORDO aircraft is on-screen
+    set_emergency = !@aircraft.any?(&:nordo) && rand < 0.1
 
     if set_emergency
-      # Find nearest runway of the appropriate type
-      nearest_runway = @map.runways.select { |r| r.type == ac.runway_type }
-                                   .min_by { |r| Geometry.distance(r.position, pos) }
+      nearest_runway = available_runways.min_by do |r|
+        Geometry.distance(r.position, pos)
+      end
 
-      # How long will it take to reach that runway?
+      # How long will it take to reach the nearest runway?
       # This is calculated in 2 legs, from spawn to the edge of the screen, then from
       # edge of the screen to the runway. That way if the aircraft is spawned going
       # the "wrong way" before the player is able to redirect it, the player isn't
@@ -164,7 +169,20 @@ class ControllerGame
       ac.emergency = (seconds_to_reach + EMERGENCY_TIME_BUFFER).seconds
     end
 
-    play_sound(set_emergency ? :emergency_spawn : :aircraft_spawn)
+    # NORDO aircraft have a 2% chance to spawn (and emergency aircraft spawning
+    # has priority). Also can't spawn a NORDO aircraft when an emergency
+    # aircraft is on-screen
+    set_nordo = !ac.emergency && !@aircraft.any?(&:emergency) && rand < 0.02
+
+    if set_nordo
+      ac.nordo = true
+      ac.pathfind_to(available_runways.sample)
+    end
+
+    # NORDO aircraft have no incoming notification
+    unless ac.nordo
+      play_sound(set_emergency ? :emergency_spawn : :aircraft_spawn)
+    end
   end
 
   # Returns a random spawn position that is a reasonable distance away from
@@ -203,11 +221,14 @@ class ControllerGame
 
   def handle_scoring
     # Score and cull landed/departed aircraft
-    count = @aircraft.count(&:landed)
-    @score += count
-    @aircraft.reject!(&:landed)
-    if count > 0
-      play_sound(:land)
+    landed = @aircraft.select(&:landed)
+    unless landed.empty?
+      @score += landed.size
+
+      play_sound(:nordo_land) if landed.any?(&:nordo)
+      play_sound(:land) if landed.any? { |a| !a.nordo }
+
+      @aircraft.reject!(&:landed)
     end
 
     count = @aircraft.count(&:departed)
