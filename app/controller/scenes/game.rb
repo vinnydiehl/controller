@@ -175,13 +175,7 @@ class ControllerGame
 
     if set_nordo
       ac.nordo = true
-      # Pick a random available runway to track towards
-      nordo_runway = available_runways.sample
-
-      ac.path << ac.position
-      ac.path << nordo_runway.position
-
-      ac.cleared_to_land = true
+      ac.pathfind_to(available_runways.sample)
     end
 
     # NORDO aircraft have no incoming notification
