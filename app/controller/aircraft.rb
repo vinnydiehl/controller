@@ -1,6 +1,6 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
-                    landed type speed runway_type vtol]
+                    landed nordo type speed runway_type vtol]
   attr_reader *%i[course departing departed entry_point incoming_marker_angle]
 
   # Degrees/frame for smoothing sprite angle
@@ -150,7 +150,7 @@ class Aircraft
       **rect,
       path: "sprites/aircraft/#{type}.png",
       angle: @heading,
-      **RUNWAY_COLORS[@runway_type],
+      **(@nordo ? WHITE : RUNWAY_COLORS[@runway_type]),
     }
   end
 
