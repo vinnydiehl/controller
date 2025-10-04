@@ -43,21 +43,21 @@ class ControllerGame
     #    random amount from 2 to 4 seconds
     #
     # The exact numbers above can be tweaked for different difficulty levels.
-    # if @incoming_wave > 0
-    #   handle_incoming_wave
-    # elsif @next_wave_in <= 0
-    #   release_wave
-    # else
-    #   @next_wave_in -= 1
-    # end
-    #
-    # # For departure spawns, there is a 50% chance of spawning a departure
-    # # every 5 seconds.
-    # if @ticks > 0 && @ticks % 10.seconds == 0
-    #   if rand < 0.5
-    #     spawn_departure
-    #   end
-    # end
+    if @incoming_wave > 0
+      handle_incoming_wave
+    elsif @next_wave_in <= 0
+      release_wave
+    else
+      @next_wave_in -= 1
+    end
+
+    # For departure spawns, there is a 50% chance of spawning a departure
+    # every 5 seconds.
+    if @ticks > 0 && @ticks % 10.seconds == 0
+      if rand < 0.5
+        spawn_departure
+      end
+    end
 
     @aircraft.each(&:tick)
     handle_scoring
@@ -130,48 +130,49 @@ class ControllerGame
     # aircraft is emergency or NORDO
     available_runways = @map.runways.select { |r| r.type == ac.runway_type }
 
-    # 10% of aircraft are emergency aircraft
-    # set_emergency = rand < 0.1
-    #
-    # if set_emergency
-    #   nearest_runway = available_runways.min_by do |r|
-    #     Geometry.distance(r.position, pos)
-    #   end
-    #
-    #   # How long will it take to reach the nearest runway?
-    #   # This is calculated in 2 legs, from spawn to the edge of the screen, then from
-    #   # edge of the screen to the runway. That way if the aircraft is spawned going
-    #   # the "wrong way" before the player is able to redirect it, the player isn't
-    #   # penalized.
-    #   spawn_to_edge = Geometry.distance(pos, ac.entry_point)
-    #   edge_to_runway = Geometry.distance(ac.entry_point, nearest_runway.position)
-    #   seconds_to_reach = (spawn_to_edge + edge_to_runway) / ac.speed
-    #
-    #   # If the aircraft spawns toward the departure end of the runway, that is,
-    #   # traveling close to opposite the runway heading, it will have to make
-    #   # a turn in order to land, so we'll give it a few more seconds if it's
-    #   # more than perpendicular to the runway (this doesn't matter for VTOL)
-    #   unless ac.vtol
-    #     reciprocal = (nearest_runway.heading + 180) % 360
-    #     # Smallest angular difference from runway heading
-    #     delta = (ac.course - nearest_runway.heading) % 360
-    #     # Normalize to [-180, 180]
-    #     delta -= 360 if delta > 180
-    #     # If the aircraft is facing closer to reciprocal than to original heading,
-    #     # and it's more than 90° away from the runway heading
-    #     if delta.abs > 90 && ((ac.course - reciprocal) % 360).abs < 90
-    #       seconds_to_reach += 3
-    #     end
-    #   end
-    #
-    #   # Set the timer with a little extra time
-    #   ac.emergency = (seconds_to_reach + EMERGENCY_TIME_BUFFER).seconds
-    # end
+    # 10% of aircraft are emergency aircraft, but one can't spawn if a
+    # NORDO aircraft is on-screen
+    set_emergency = !@aircraft.any?(&:nordo) && rand < 0.1
 
-    # NORDO aircraft
-    unless ac.emergency
-      set_nordo = rand < 1 # always true for testing
+    if set_emergency
+      nearest_runway = available_runways.min_by do |r|
+        Geometry.distance(r.position, pos)
+      end
+
+      # How long will it take to reach the nearest runway?
+      # This is calculated in 2 legs, from spawn to the edge of the screen, then from
+      # edge of the screen to the runway. That way if the aircraft is spawned going
+      # the "wrong way" before the player is able to redirect it, the player isn't
+      # penalized.
+      spawn_to_edge = Geometry.distance(pos, ac.entry_point)
+      edge_to_runway = Geometry.distance(ac.entry_point, nearest_runway.position)
+      seconds_to_reach = (spawn_to_edge + edge_to_runway) / ac.speed
+
+      # If the aircraft spawns toward the departure end of the runway, that is,
+      # traveling close to opposite the runway heading, it will have to make
+      # a turn in order to land, so we'll give it a few more seconds if it's
+      # more than perpendicular to the runway (this doesn't matter for VTOL)
+      unless ac.vtol
+        reciprocal = (nearest_runway.heading + 180) % 360
+        # Smallest angular difference from runway heading
+        delta = (ac.course - nearest_runway.heading) % 360
+        # Normalize to [-180, 180]
+        delta -= 360 if delta > 180
+        # If the aircraft is facing closer to reciprocal than to original heading,
+        # and it's more than 90° away from the runway heading
+        if delta.abs > 90 && ((ac.course - reciprocal) % 360).abs < 90
+          seconds_to_reach += 3
+        end
+      end
+
+      # Set the timer with a little extra time
+      ac.emergency = (seconds_to_reach + EMERGENCY_TIME_BUFFER).seconds
     end
+
+    # NORDO aircraft have a 2% chance to spawn (and emergency aircraft spawning
+    # has priority). Also can't spawn a NORDO aircraft when an emergency
+    # aircraft is on-screen
+    set_nordo = !ac.emergency && !@aircraft.any?(&:emergency) && rand < 0.02
 
     if set_nordo
       ac.nordo = true
