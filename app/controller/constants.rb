@@ -41,6 +41,18 @@ SURFACE_INCREMENT = {
 AIRCRAFT_SIZE = 32
 AIRCRAFT_RADIUS = AIRCRAFT_SIZE / 2
 
+# Path smoothing:
+# Below this angle triggers smoothing with min points
+MIN_ANGLE_THRESHOLD = 120.0
+# Below this angle inserts max points (between these two it interpolates)
+MAX_ANGLE_THRESHOLD = 70.0
+# Min points to insert
+MIN_CURVE_STEPS = 2
+# Max points to insert
+MAX_CURVE_STEPS = 10
+# How much to flatten the corner, from 0-1
+CORNER_FLATTEN = 0.5
+
 # How far off the screen an aircraft spawns
 SPAWN_PADDING = AIRCRAFT_SIZE * 3
 # For spacing out spawns. Testing with a retry limit of 10 I could

@@ -205,6 +205,45 @@ class Aircraft
     }
   end
 
+  def smooth_path
+    return if @path.size < 3
+
+    path = @path
+    smoothed = [path.first]
+
+    path.each_cons(3) do |p0, p1, p2|
+      angle = corner_angle(p0, p1, p2)
+
+      # Flatten p1 toward midpoint of p0-p2
+      mid = [(p0[0] + p2[0]) / 2.0, (p0[1] + p2[1]) / 2.0]
+      flattened_p1 = [
+        p1[0] + (mid[0]-p1[0]) * CORNER_FLATTEN,
+        p1[1] + (mid[1]-p1[1]) * CORNER_FLATTEN,
+      ]
+
+      if angle < MIN_ANGLE_THRESHOLD
+        t_factor = [
+          [
+            (MIN_ANGLE_THRESHOLD - angle) / (MIN_ANGLE_THRESHOLD - MAX_ANGLE_THRESHOLD),
+            1,
+          ].min,
+          0,
+        ].max
+        steps = (MIN_CURVE_STEPS + (MAX_CURVE_STEPS - MIN_CURVE_STEPS) * t_factor).ceil
+
+        steps.times do |s|
+          t = (s + 1).to_f / (steps + 1)
+          smoothed << quadratic_bezier(p0, flattened_p1, p2, t)
+        end
+      else
+        smoothed << p1
+      end
+    end
+
+    smoothed << path.last
+    @path = smoothed
+  end
+
   # Hitbox for a collision
   def hitbox
     Geometry.rect_to_circle(rect).tap { |c| c[:radius] /= 1.5 }
@@ -281,6 +320,24 @@ class Aircraft
   end
 
   private
+
+  def corner_angle(p0, p1, p2)
+    v1 = [p0[0] - p1[0], p0[1] - p1[1]]
+    v2 = [p2[0] - p1[0], p2[1] - p1[1]]
+    dot = v1[0] * v2[0] + v1[1] * v2[1]
+    mag1 = Math.hypot(*v1)
+    mag2 = Math.hypot(*v2)
+    return 180 if mag1.zero? || mag2.zero?
+    Math.acos([[dot / (mag1*mag2), 1].min, -1].max) * 180 / Math::PI
+  end
+
+  def quadratic_bezier(p0, p1, p2, t)
+    omt = 1 - t
+    [
+      (omt**2 * p0[0]) + (2 * omt * t * p1[0]) + (t**2 * p2[0]),
+      (omt**2 * p0[1]) + (2 * omt * t * p1[1]) + (t**2 * p2[1]),
+    ]
+  end
 
   def move_along_heading
     @position = Geometry.vec2_add(

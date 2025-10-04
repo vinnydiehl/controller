@@ -67,6 +67,8 @@ class ControllerGame
               ac.path.take(FINAL_APPROACH_BUFFER)
               ac.path << runway.position
 
+              ac.smooth_path
+
               play_sound(:clear_for_landing)
 
               return
@@ -85,6 +87,10 @@ class ControllerGame
       if Geometry.distance(coords, ac.path.last) >= MIN_DIST
         ac.path << coords
       end
+    end
+
+    if @mouse.key_up.left && (ac = @aircraft_redirecting)
+      ac.smooth_path
     end
   end
 
