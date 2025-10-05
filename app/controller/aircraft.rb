@@ -396,8 +396,20 @@ class Aircraft
     smooth_path
   end
 
+  # Returns whether or now the takeoff animation is in progress
   def taking_off?
     !!@taking_off
+  end
+
+  # Returns whether or not the landing animation is in progress
+  def landing?
+    !!@landed_at
+  end
+
+  # Can this aircraft be redirected? If this returns false, clicking on the
+  # aircraft will do nothing
+  def redirectable?
+    !nordo && !taking_off? && !landing?
   end
 
   private
