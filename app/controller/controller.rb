@@ -21,6 +21,9 @@ class ControllerGame
     @sounds = args.outputs.sounds
     @primitives = args.outputs.primitives
 
+    # Development mode prevents spawns (keybinds are available to spawn manually)
+    @dev_mode = development?
+
     @scene_stack = []
     set_scene(:game, reset_stack: true)
   end
@@ -50,8 +53,16 @@ class ControllerGame
     send "render_#{scene}"
 
     # Reset game, for development
-    if @kb.key_down_or_held?(:shift) && @kb.key_down?(:backspace)
+    if development? && @kb.key_down_or_held?(:shift) && @kb.key_down?(:backspace)
       @args.gtk.reboot
     end
+  end
+
+  def production?
+    GTK.production?
+  end
+
+  def development?
+    !GTK.production?
   end
 end

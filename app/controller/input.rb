@@ -148,8 +148,16 @@ class ControllerGame
   end
 
   def handle_kb_inputs
+    handle_dev_kb_inputs if development?
+  end
+
+  def handle_dev_kb_inputs
     if @kb.key_down.e
       set_scene(:map_editor)
+    end
+
+    if @kb.key_down.d
+      @dev_mode = !@dev_mode
     end
   end
 

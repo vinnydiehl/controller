@@ -24,40 +24,19 @@ class ControllerGame
 
     return if @game_over
 
-    # For development
+    # For development:
     # Space to spawn an incoming aircraft, Ctrl+Space to spawn a departure
-    if !GTK.production? && @kb.key_down.space
-      if @kb.key_down_or_held?(:ctrl)
-        spawn_departure
-      else
-        spawn_aircraft(AIRCRAFT_TYPES.sample)
+    if development?
+      if @kb.key_down.space
+        if @kb.key_down_or_held?(:ctrl)
+          spawn_departure
+        else
+          spawn_aircraft(AIRCRAFT_TYPES.sample)
+        end
       end
     end
 
-    # Spawn aircraft in waves. The wave system works as follows:
-    #
-    # For example:
-    #  * The waves are spaced out by a random amount from 10 to 15 seconds
-    #  * Each wave contains a random amount from 1 to 3 aircraft
-    #  * Additionally, each aircraft within a given wave are spaced out by a
-    #    random amount from 2 to 4 seconds
-    #
-    # The exact numbers above can be tweaked for different difficulty levels.
-    if @incoming_wave > 0
-      handle_incoming_wave
-    elsif @next_wave_in <= 0
-      release_wave
-    else
-      @next_wave_in -= 1
-    end
-
-    # For departure spawns, there is a 50% chance of spawning a departure
-    # every 5 seconds.
-    if @ticks > 0 && @ticks % 10.seconds == 0
-      if rand < 0.5
-        spawn_departure
-      end
-    end
+    handle_spawns unless @dev_mode
 
     @aircraft.each(&:tick)
     handle_scoring
@@ -95,6 +74,34 @@ class ControllerGame
     # do this without extensive modification to the warning system
     if @warnings.size > warnings_orig.size
       play_sound(:warning)
+    end
+  end
+
+  # Handles spawning of incoming aircraft and departures.
+  def handle_spawns
+    # Spawn aircraft in waves. The wave system works as follows:
+    #
+    # For example:
+    #  * The waves are spaced out by a random amount from 10 to 15 seconds
+    #  * Each wave contains a random amount from 1 to 3 aircraft
+    #  * Additionally, each aircraft within a given wave are spaced out by a
+    #    random amount from 2 to 4 seconds
+    #
+    # The exact numbers above can be tweaked for different difficulty levels.
+    if @incoming_wave > 0
+      handle_incoming_wave
+    elsif @next_wave_in <= 0
+      release_wave
+    else
+      @next_wave_in -= 1
+    end
+
+    # For departure spawns, there is a 50% chance of spawning a departure
+    # every 5 seconds.
+    if @ticks > 0 && @ticks % 10.seconds == 0
+      if rand < 0.5
+        spawn_departure
+      end
     end
   end
 

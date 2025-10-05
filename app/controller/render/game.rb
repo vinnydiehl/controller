@@ -2,6 +2,7 @@ class ControllerGame
   def render_game
     render_map
     render_score
+    render_dev_mode_label if @dev_mode
 
     render_runways
     render_departures
@@ -29,6 +30,21 @@ class ControllerGame
       size_enum: 10,
       anchor_x: 0,
       anchor_y: 0.5,
+      **WHITE,
+    )
+  end
+
+  def render_dev_mode_label
+    @primitives << Layout.point(
+      row: 12.25,
+      col: 23.25,
+      row_anchor: 0.5,
+      col_anchor: 1,
+    ).merge(
+      text: "Development Mode",
+      size_px: 20,
+      anchor_x: 1,
+      anchor_y: 0,
       **WHITE,
     )
   end
