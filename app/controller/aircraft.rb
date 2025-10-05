@@ -58,6 +58,10 @@ class Aircraft
 
     @cleared_to_land = false
     @landed = false
+    # Tick that landing started (for animation)
+    @landed_at = nil
+    # This will fade to 0 during landing animation
+    @alpha = 255
 
     # The aircraft begins off the screen. This will be set to false
     # once it enters the screen, and will be used in the future for
@@ -127,7 +131,19 @@ class Aircraft
       end
 
       if @path.empty?
-        @landed = true if @cleared_to_land
+        # Handle landing
+        if @cleared_to_land
+          # Save the tick count that we landed at for animation progress
+          @landed_at = Kernel.tick_count
+          # If it's an emergency... we made it!
+          @emergency = nil
+          # Align aircraft with runway heading for landing animation
+          # (unless it's VTOL)
+          unless @vtol
+            @course = @cleared_to_land.heading
+          end
+        end
+
         if @taking_off
           @taking_off = false
           @size = AIRCRAFT_SIZE
@@ -137,6 +153,8 @@ class Aircraft
       # No path, keep flying straight using last heading
       move_along_heading
     end
+
+    handle_landing_animation if @landed_at
 
     # If the aircraft is taking off, ease the aircraft's size and
     # speed as it becomes airborne
@@ -304,6 +322,7 @@ class Aircraft
       path: "sprites/aircraft/#{type}.png",
       angle: @heading,
       **(@nordo ? WHITE : RUNWAY_COLORS[@runway_type]),
+      a: @alpha,
     }
   end
 
@@ -445,6 +464,9 @@ class Aircraft
   end
 
   def move_along_heading
+    # VTOL aircraft land straight down
+    return if @landed_at && @vtol
+
     @position = Geometry.vec2_add(
       @position,
       [
@@ -530,6 +552,24 @@ class Aircraft
     else
       @heading += ANGLE_SMOOTHING_RATE * (delta.positive? ? 1 : -1)
       @heading %= 360
+    end
+  end
+
+  def handle_landing_animation
+    elapsed = Kernel.tick_count - @landed_at
+    progress = (elapsed / LANDING_ANIMATION_LENGTH).clamp(0.0, 1.0)
+
+    # Ease-out size
+    eased_size = 1 - (1 - progress)**2
+    @size = AIRCRAFT_SIZE - (AIRCRAFT_SIZE - LANDING_SIZE) * eased_size
+
+    # Ease-in alpha
+    eased_alpha = progress**2
+    @alpha = (255 * (1 - eased_alpha)).to_i
+
+    # Once animation completes, mark as landed
+    if progress >= 1.0
+      @landed = true
     end
   end
 end
