@@ -215,7 +215,7 @@ class Aircraft
     }
   end
 
-  def smooth_path
+  def smooth_path(corner_flatten = CORNER_FLATTEN)
     return if @path.size < 3
 
     path = @path
@@ -227,8 +227,8 @@ class Aircraft
       # Flatten p1 toward midpoint of p0-p2
       mid = [(p0[0] + p2[0]) / 2.0, (p0[1] + p2[1]) / 2.0]
       flattened_p1 = [
-        p1[0] + (mid[0]-p1[0]) * CORNER_FLATTEN,
-        p1[1] + (mid[1]-p1[1]) * CORNER_FLATTEN,
+        p1[0] + (mid[0]-p1[0]) * corner_flatten,
+        p1[1] + (mid[1]-p1[1]) * corner_flatten,
       ]
 
       if angle < MIN_ANGLE_THRESHOLD
