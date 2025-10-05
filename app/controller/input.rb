@@ -4,28 +4,79 @@ class ControllerGame
 
     if @mouse.key_down.left
       # See if we're clicking on an airborne aircraft
-      @aircraft_redirecting = @aircraft.reject(&:nordo).find do |ac|
-        @mouse.intersect_rect?(ac.rect)
-      end
+      @aircraft_redirecting = @aircraft.reject { |ac| ac.nordo || ac.taking_off? }
+                                       .find { |ac| @mouse.intersect_rect?(ac.rect) }
 
       # Handle click on departure
       if !@aircraft_redirecting
         @map.runways.select(&:departure).each do |runway|
           if runway.mouse_in_hold_short?
             ac_type = AIRCRAFT_TYPES.find { |t| t.type == runway.departure.type }
-            course = runway.heading
-            # The way that helipads are angled, we'll want to depart straight
-            # forward rather than turning onto the runway
-            course = (course + 90) % 360 if ac_type.vtol
+            course = runway.hold_short_heading
+
+            # Construct a path for the aircraft to taxi onto the runway and takeoff
+            path = [runway.hold_short_point]
+            if runway.helipad
+              offset = {
+                x: runway.position.x + AIRCRAFT_SIZE * 2,
+                y: runway.position.y,
+              }
+              rotated = Geometry.rotate_point(
+                offset,
+                runway.hold_short_heading,
+                x: runway.position.x,
+                y: runway.position.y,
+              )
+              toc = [rotated.x, rotated.y]
+
+              path += [
+                runway.position,
+                toc,
+              ]
+            else
+              # The first point will be straight ahead, just a little bit
+              straight_ahead = Geometry.rotate_point(
+                {
+                  x: runway.hold_short_point.x + DEPARTURE_SIZE / 4,
+                  y: runway.hold_short_point.y,
+                },
+                runway.hold_short_heading,
+                x: runway.hold_short_point.x,
+                y: runway.hold_short_point.y,
+              )
+              path << [straight_ahead.x, straight_ahead.y]
+
+              # Then path to the hold short point, then to a point a little bit
+              # down the runway, then halfway down the runway (this will be smoothed)
+              offsets = [
+                HOLD_SHORT_DISTANCE,
+                HOLD_SHORT_DISTANCE * 2,
+                runway.length / 2,
+              ]
+              path += offsets.map do |offset|
+                point = { x: runway.position.x + offset, y: runway.position.y }
+                rotated = Geometry.rotate_point(
+                  point,
+                  runway.heading,
+                  x: runway.position.x,
+                  y: runway.position.y,
+                )
+                [rotated.x, rotated.y]
+              end
+            end
 
             @aircraft << Aircraft.new(
-              position: runway.position,
+              position: runway.hold_short_point,
               **ac_type,
               course: course,
               departing: runway.departure[:direction],
-            )
-            runway.depart
+              size: DEPARTURE_SIZE,
+            ).tap do |ac|
+              ac.path = path
+              ac.smooth_path(0)
+            end
 
+            runway.depart
             play_sound(:takeoff)
           end
         end

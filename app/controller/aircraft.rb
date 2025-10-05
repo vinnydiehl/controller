@@ -32,12 +32,11 @@ class Aircraft
   ]
 
   def initialize(position:, type:, speed:, runway:, vtol:,
-                 course: nil, departing: nil)
-    @position, @type, @speed, @runway_type, @vtol, @course, @departing =
-      position, type, speed, runway, vtol, course, departing
+                 course: nil, departing: nil, size: AIRCRAFT_SIZE)
+    @position, @type, @runway_type, @vtol, @course, @departing, @size =
+      position, type, runway, vtol, course, departing, size
 
-    # Pixels/frame
-    @speed_px = @speed / 60.0
+    set_speed(speed)
 
     # Array of "waypoints" which connect to form the path the
     # aircraft will follow
@@ -67,7 +66,16 @@ class Aircraft
 
     @departed = false
 
-    unless @departing
+    if @departing
+      # The aircraft will take some time to animate the process of taxiing
+      # onto the runway and becoming airborne. Once it's airborne,
+      # this will be set to false.
+      @taking_off = true
+      # The speed will also need to accelerate to the set speed, so save this
+      @cruise_speed = speed
+      set_speed(TAXI_SPEED)
+    else
+      # Otherwise we've spawned an incoming aircraft off-screen.
       # We need to figure out where on the screen the aircraft is going
       # to appear based on the angle... we'll use line intersection.
       # Here's a line from aircraft to center of screen
@@ -118,12 +126,31 @@ class Aircraft
         move_along_heading
       end
 
-      if @path.empty? && @cleared_to_land
-        @landed = true
+      if @path.empty?
+        @landed = true if @cleared_to_land
+        if @taking_off
+          @taking_off = false
+          @size = AIRCRAFT_SIZE
+        end
       end
     else
       # No path, keep flying straight using last heading
       move_along_heading
+    end
+
+    # If the aircraft is taking off, ease the aircraft's size and
+    # speed as it becomes airborne
+    if taking_off? && path.size == 1
+      @takeoff_run ||= Geometry.distance(@position, @path[0])
+      run_remaining = Geometry.distance(@position, @path[0])
+
+      progress = 1.0 - (run_remaining / @takeoff_run.to_f)
+      progress = progress.clamp(0.0, 1.0)
+
+      eased = 1 - (1 - progress)**2
+
+      @size = DEPARTURE_SIZE + (AIRCRAFT_SIZE - DEPARTURE_SIZE) * eased
+      set_speed(TAXI_SPEED + (@cruise_speed - TAXI_SPEED) * eased)
     end
 
     if @emergency
@@ -133,6 +160,11 @@ class Aircraft
     handle_screen_edge_collision
     handle_departure
     ease_heading
+  end
+
+  def set_speed(speed)
+    @speed = speed
+    @speed_px = @speed / 60
   end
 
   # Make the aircraft smoothly pathfind towards +runway+ and land there.
@@ -209,13 +241,13 @@ class Aircraft
 
   def rect
     {
-      x: @position.x - AIRCRAFT_RADIUS,
-      y: @position.y - AIRCRAFT_RADIUS,
-      w: AIRCRAFT_SIZE, h: AIRCRAFT_SIZE,
+      x: @position.x - @size / 2,
+      y: @position.y - @size / 2,
+      w: @size, h: @size,
     }
   end
 
-  def smooth_path
+  def smooth_path(corner_flatten = CORNER_FLATTEN)
     return if @path.size < 3
 
     path = @path
@@ -227,8 +259,8 @@ class Aircraft
       # Flatten p1 toward midpoint of p0-p2
       mid = [(p0[0] + p2[0]) / 2.0, (p0[1] + p2[1]) / 2.0]
       flattened_p1 = [
-        p1[0] + (mid[0]-p1[0]) * CORNER_FLATTEN,
-        p1[1] + (mid[1]-p1[1]) * CORNER_FLATTEN,
+        p1[0] + (mid[0]-p1[0]) * corner_flatten,
+        p1[1] + (mid[1]-p1[1]) * corner_flatten,
       ]
 
       if angle < MIN_ANGLE_THRESHOLD
@@ -278,7 +310,7 @@ class Aircraft
   def primitives
     primitives = [sprite]
 
-    if @departing
+    if @departing && !taking_off?
       # Departure direction arrow
       primitives << {
         x: @position.x, y: @position.y,
@@ -317,7 +349,7 @@ class Aircraft
   end
 
   def path_primitives
-    return if @path.empty? || @nordo
+    return if @path.empty? || @nordo || taking_off?
 
     [[@position.x, @position.y], *@path].each_cons(2).map do |(x, y), (x2, y2)|
       {
@@ -341,6 +373,10 @@ class Aircraft
     clear_dots
     @vectoring = false
     smooth_path
+  end
+
+  def taking_off?
+    !!@taking_off
   end
 
   private

@@ -34,6 +34,10 @@ class Runway
     ]
   end
 
+  def hold_short_heading
+    (@heading + (@hold_short == :right ? 90 : -90)) % 360
+  end
+
   # A departure is a Hash containing the following data:
   #  * direction: The direction it wishes to depart; :up, :down, :right, :left
   #  * type: The type of aircraft
