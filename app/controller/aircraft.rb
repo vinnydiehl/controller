@@ -1,7 +1,8 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
                     landed nordo type speed runway_type vectoring vtol]
-  attr_reader *%i[course departing departed entry_point incoming_marker_angle]
+  attr_reader *%i[course departing departed entry_point
+                  incoming_marker_angle taking_off]
 
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
@@ -32,9 +33,9 @@ class Aircraft
   ]
 
   def initialize(position:, type:, speed:, runway:, vtol:,
-                 course: nil, departing: nil)
-    @position, @type, @speed, @runway_type, @vtol, @course, @departing =
-      position, type, speed, runway, vtol, course, departing
+                 course: nil, departing: nil, size: AIRCRAFT_SIZE)
+    @position, @type, @speed, @runway_type, @vtol, @course, @departing, @size =
+      position, type, speed, runway, vtol, course, departing, size
 
     # Pixels/frame
     @speed_px = @speed / 60.0
@@ -67,7 +68,13 @@ class Aircraft
 
     @departed = false
 
-    unless @departing
+    if @departing
+      # The aircraft will take some time to animate the process of taxiing
+      # onto the runway and becoming airborne. Once it's airborne,
+      # this will be set to false.
+      @taking_off = true
+    else
+      # Otherwise we've spawned an incoming aircraft off-screen.
       # We need to figure out where on the screen the aircraft is going
       # to appear based on the angle... we'll use line intersection.
       # Here's a line from aircraft to center of screen
@@ -118,8 +125,9 @@ class Aircraft
         move_along_heading
       end
 
-      if @path.empty? && @cleared_to_land
-        @landed = true
+      if @path.empty?
+        @landed = true if @cleared_to_land
+        @taking_off = false if @taking_off
       end
     else
       # No path, keep flying straight using last heading
@@ -209,9 +217,9 @@ class Aircraft
 
   def rect
     {
-      x: @position.x - AIRCRAFT_RADIUS,
-      y: @position.y - AIRCRAFT_RADIUS,
-      w: AIRCRAFT_SIZE, h: AIRCRAFT_SIZE,
+      x: @position.x - @size / 2,
+      y: @position.y - @size / 2,
+      w: @size, h: @size,
     }
   end
 

@@ -4,7 +4,8 @@ class ControllerGame
 
     if @mouse.key_down.left
       # See if we're clicking on an airborne aircraft
-      @aircraft_redirecting = @aircraft.reject(&:nordo).find do |ac|
+      @aircraft_redirecting = @aircraft.reject { |ac| ac.nordo || ac.taking_off }
+                                       .find do |ac|
         @mouse.intersect_rect?(ac.rect)
       end
 
@@ -58,6 +59,7 @@ class ControllerGame
               **ac_type,
               course: course,
               departing: runway.departure[:direction],
+              size: DEPARTURE_SIZE,
             ).tap do |ac|
               ac.path = path
               ac.smooth_path(0)
