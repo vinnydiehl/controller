@@ -310,17 +310,19 @@ class Aircraft
   def primitives
     primitives = [sprite]
 
-    if @departing && !taking_off?
+    if @departing
       # Departure direction arrow
+      scale = @size / AIRCRAFT_SIZE
       primitives << {
         x: @position.x, y: @position.y,
-        w: 8, h: 20,
+        w: 8 * scale, h: 20 * scale,
         path: "sprites/symbology/direction_large.png",
         angle: ANGLE[@departing],
         anchor_x: -2,
         anchor_y: 0.5,
         angle_anchor_x: -2,
         angle_anchor_y: 0.5,
+        a: taking_off? ? 100 : 255,
       }
     elsif @emergency
       seconds = @emergency.to_seconds
