@@ -349,7 +349,7 @@ class Aircraft
   end
 
   def path_primitives
-    return if @path.empty? || @nordo
+    return if @path.empty? || @nordo || taking_off?
 
     [[@position.x, @position.y], *@path].each_cons(2).map do |(x, y), (x2, y2)|
       {
