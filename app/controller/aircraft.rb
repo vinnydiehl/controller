@@ -1,8 +1,7 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
                     landed nordo type speed runway_type vectoring vtol]
-  attr_reader *%i[course departing departed entry_point
-                  incoming_marker_angle taking_off]
+  attr_reader *%i[course departing departed entry_point incoming_marker_angle]
 
   # Degrees/frame for smoothing sprite angle
   ANGLE_SMOOTHING_RATE = 5.0
@@ -127,11 +126,28 @@ class Aircraft
 
       if @path.empty?
         @landed = true if @cleared_to_land
-        @taking_off = false if @taking_off
+        if @taking_off
+          @taking_off = false
+          @size = AIRCRAFT_SIZE
+        end
       end
     else
       # No path, keep flying straight using last heading
       move_along_heading
+    end
+
+    # If the aircraft is taking off, ease the aircraft size as it
+    # becomes airborne
+    if taking_off? && path.size == 1
+      @takeoff_run ||= Geometry.distance(@position, @path[0])
+      run_remaining = Geometry.distance(@position, @path[0])
+
+      progress = 1.0 - (run_remaining / @takeoff_run.to_f)
+      progress = progress.clamp(0.0, 1.0)
+
+      eased = 1 - (1 - progress)**2
+
+      @size = DEPARTURE_SIZE + (AIRCRAFT_SIZE - DEPARTURE_SIZE) * eased
     end
 
     if @emergency
@@ -349,6 +365,10 @@ class Aircraft
     clear_dots
     @vectoring = false
     smooth_path
+  end
+
+  def taking_off?
+    !!@taking_off
   end
 
   private
