@@ -302,7 +302,7 @@ class Aircraft
   def primitives
     primitives = [sprite]
 
-    if @departing
+    if @departing && !taking_off?
       # Departure direction arrow
       primitives << {
         x: @position.x, y: @position.y,
