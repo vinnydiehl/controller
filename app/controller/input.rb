@@ -34,12 +34,25 @@ class ControllerGame
                 toc,
               ]
             else
+              # The first point will be straight ahead, just a little bit
+              straight_ahead = Geometry.rotate_point(
+                {
+                  x: runway.hold_short_point.x + DEPARTURE_SIZE / 4,
+                  y: runway.hold_short_point.y,
+                },
+                runway.hold_short_heading,
+                x: runway.hold_short_point.x,
+                y: runway.hold_short_point.y,
+              )
+              path << [straight_ahead.x, straight_ahead.y]
+
+              # Then path to the hold short point, then to a point a little bit
+              # down the runway, then halfway down the runway (this will be smoothed)
               offsets = [
                 HOLD_SHORT_DISTANCE,
                 HOLD_SHORT_DISTANCE * 2,
                 runway.length / 2,
               ]
-
               path += offsets.map do |offset|
                 point = { x: runway.position.x + offset, y: runway.position.y }
                 rotated = Geometry.rotate_point(
