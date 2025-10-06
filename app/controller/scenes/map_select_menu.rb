@@ -10,18 +10,25 @@ class ControllerGame
 
   def handle_map_select_menu_mouse_inputs
     if @kb.key_down.right
-      @map_i += 1 unless @map_i == @maps.size - 1
+      unless @map_i == @maps.size - 1
+        @map_i += 1
+        play_sound(:scroll)
+      end
       return
     end
 
     if @kb.key_down.left
-      @map_i -= 1 unless @map_i == 0
+      unless @map_i == 0
+        @map_i -= 1
+        play_sound(:scroll)
+      end
       return
     end
 
     if @kb.key_down.enter
       @map = selected_map
       load_aircraft_types
+      play_sound(:resume)
       set_scene(:game)
     end
   end
