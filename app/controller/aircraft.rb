@@ -254,7 +254,7 @@ class Aircraft
       [x, y]
     end
 
-    @cleared_to_land = true
+    @cleared_to_land = runway
   end
 
   def rect
