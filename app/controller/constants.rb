@@ -108,6 +108,8 @@ RWY_DEFAULTS = {
   heading: 0,
   length: RWY_WIDTH * 6,
   surface: :cement,
+  helipad: nil,
+  hold_short: :right,
 }
 RWY_MIN_LENGTH = RWY_WIDTH * 3
 HELI_OPTIONS = [nil, :square, :circle]

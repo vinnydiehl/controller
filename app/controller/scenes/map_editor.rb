@@ -353,11 +353,7 @@ class ControllerGame
         type: :blue,
         name: "00",
         position: [@mouse.x, @mouse.y],
-        tdz_radius: RWY_DEFAULTS[:tdz_radius],
-        heading: RWY_DEFAULTS[:heading],
-        length: RWY_DEFAULTS[:length],
-        helipad: nil,
-        surface: RWY_DEFAULTS[:surface],
+        **RWY_DEFAULTS,
       )
       @active_runway = @map.runways.last
       return
