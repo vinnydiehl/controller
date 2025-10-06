@@ -185,7 +185,7 @@ class ControllerGame
           row: 5, col: 14.5, w: 0.5, h: 0.5,
         ).slice(:x, :y, :w, :h),
         on_click: -> { @display_save_modal = false },
-        path: "sprites/map_editor/x_black.png",
+        path: "sprites/map_editor/x.png",
       ),
     ]
   end

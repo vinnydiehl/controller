@@ -47,6 +47,14 @@ class Button
       )
     end
 
+    ffi.draw_border(
+      @x, @y, @w, @h,
+      BUTTON_BORDER_VALUE,
+      BUTTON_BORDER_VALUE,
+      BUTTON_BORDER_VALUE,
+      255
+    )
+
     if @text
       # ffi.draw_label_5(
       #   x, y,
