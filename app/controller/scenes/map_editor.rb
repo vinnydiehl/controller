@@ -230,6 +230,7 @@ class ControllerGame
       # Clicking outside the box blurs the inputs
       @map_name_input.blur
       @map_id_input.blur
+      @runway_name_input.blur
     end
 
     if @mouse.key_down.left
@@ -336,6 +337,10 @@ class ControllerGame
     if @kb.key_down.escape
       @display_save_modal = !@display_save_modal
     end
+
+    # Ignore the rest of these if an input is focused
+    inputs = [@map_name_input, @map_id_input, @runway_name_input]
+    return if inputs.any?(&:focused?)
 
     # Insert new runway
     if @kb.key_down.space
