@@ -1,4 +1,4 @@
-SCENES = %w[game map_editor].freeze
+SCENES = %w[game map_editor map_select_menu]
 
 require "lib/core_ext/numeric.rb"
 %w[tiled/tiled json input].each { |f| require "lib/#{f}.rb" }
