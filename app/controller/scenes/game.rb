@@ -15,7 +15,7 @@ class ControllerGame
 
     @warnings = []
 
-    load_map("island")
+    load_map("ksfo")
   end
 
   def game_tick

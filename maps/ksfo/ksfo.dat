@@ -1,0 +1,62 @@
+{
+  "name": "San Franciso",
+  "id": "ksfo",
+  "runways": [
+    {
+      "type": {"@@jm:symbol":"blue"},
+      "name": "28R",
+      "position": [
+        932.0,
+        233.0
+      ],
+      "length": 624,
+      "tdz_radius": 20,
+      "heading": 135.0686176672106,
+      "helipad": null,
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": {"@@jm:symbol":"right"}
+    },
+    {
+      "type": {"@@jm:symbol":"red"},
+      "name": "28L",
+      "position": [
+        886.0,
+        186.0
+      ],
+      "length": 564,
+      "tdz_radius": 20,
+      "heading": 135.1652861120684,
+      "helipad": null,
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": {"@@jm:symbol":"left"}
+    },
+    {
+      "type": {"@@jm:symbol":"blue"},
+      "name": "01R",
+      "position": [
+        510.0,
+        107.0
+      ],
+      "length": 580,
+      "tdz_radius": 20,
+      "heading": 45.51883505039046,
+      "helipad": null,
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": {"@@jm:symbol":"right"}
+    },
+    {
+      "type": {"@@jm:symbol":"red"},
+      "name": "01L",
+      "position": [
+        469.0,
+        151.0
+      ],
+      "length": 540,
+      "tdz_radius": 20,
+      "heading": 45.160043660606,
+      "helipad": null,
+      "surface": {"@@jm:symbol":"cement"},
+      "hold_short": null
+    }
+  ]
+}
