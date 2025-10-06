@@ -100,6 +100,8 @@ class Aircraft
 
     # Cache for dotted path
     @dotted_path_primitives = []
+
+    @spawned_at = Kernel.tick_count
   end
 
   def tick
@@ -328,7 +330,7 @@ class Aircraft
     if type == :helicopter
       # Animate helicopter rotor
       sprite.merge(
-        tile_x: 0.frame_index(3, 3, true) * AIRCRAFT_SIZE,
+        tile_x: @spawned_at.frame_index(3, 3, true) * AIRCRAFT_SIZE,
         tile_y: 0,
         tile_w: AIRCRAFT_SIZE,
         tile_h: AIRCRAFT_SIZE,
