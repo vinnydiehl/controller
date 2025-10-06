@@ -20,8 +20,8 @@
       "type": {"@@jm:symbol":"red"},
       "name": "28L",
       "position": [
-        886.0,
-        186.0
+        892.0,
+        192.0
       ],
       "length": 564,
       "tdz_radius": 20,
@@ -35,7 +35,7 @@
       "name": "01R",
       "position": [
         510.0,
-        107.0
+        109.0
       ],
       "length": 580,
       "tdz_radius": 20,
