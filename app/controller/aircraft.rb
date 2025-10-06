@@ -117,43 +117,14 @@ class Aircraft
     end
 
     if @path.any?
-      target = @path.first
-      dist = Geometry.distance(@position, target)
-
-      if dist <= @speed_px
-        # Snap to waypoint
-        @course = target.angle_from(@position)
-        @position = target
-        # Next waypoint
-        @path.shift
+      if holding?
+        move_along_hold
       else
-        # Step toward waypoint
-        @course = target.angle_from(@position)
-        move_along_heading
-      end
-
-      if @path.empty?
-        # Handle landing
-        if @cleared_to_land
-          # Save the tick count that we landed at for animation progress
-          @landed_at = Kernel.tick_count
-          # If it's an emergency... we made it!
-          @emergency = nil
-          # Align aircraft with runway heading for landing animation
-          # (unless it's VTOL)
-          unless @vtol
-            @course = @cleared_to_land.heading
-          end
-        end
-
-        if @taking_off
-          @taking_off = false
-          @size = AIRCRAFT_SIZE
-        end
+        move_along_path
       end
     else
       # No path, keep flying straight using last heading
-      move_along_heading
+      move_along_course
     end
 
     handle_landing_animation if @landed_at
@@ -386,12 +357,21 @@ class Aircraft
   def path_primitives
     return if @path.empty? || @nordo || taking_off?
 
-    [[@position.x, @position.y], *@path].each_cons(2).map do |(x, y), (x2, y2)|
+    color = if holding?
+      HOLD_PATH_COLOR
+    elsif @cleared_to_land
+      CLEARED_TO_LAND_PATH_COLOR
+    else
+      PATH_COLOR
+    end
+
+    path = holding? ? @path : [[@position.x, @position.y], *@path]
+    path.each_cons(2).map do |(x, y), (x2, y2)|
       {
         x: x, y: y,
         x2: x2, y2: y2,
         scale_quality_enum: 2,
-        **(@cleared_to_land ? CLEARED_TO_LAND_PATH_COLOR : PATH_COLOR),
+        **color,
       }
     end
   end
@@ -408,6 +388,73 @@ class Aircraft
     clear_dots
     @vectoring = false
     smooth_path
+  end
+
+  # Starts a hold at the Aircraft's current @position along its
+  # current @heading.
+  def hold
+    @holding = true
+    @hold_path_i = 0
+
+    # Need to generate a path, starting at the current position
+    @path = [[@position.x, @position.y]]
+
+    # Outbound leg
+    leg_1 = Geometry.rotate_point(
+      { x: @position.x + HOLD_LEG_LENGTH, y: @position.y },
+      @heading,
+      x: @position.x, y: @position.y
+    )
+    @path << [leg_1.x, leg_1.y]
+
+    # First turn (to reciprocal heading)
+    turn_1_center = Geometry.rotate_point(
+      { x: leg_1.x + HOLD_TURN_RADIUS, y: leg_1.y },
+      (@heading - 90) % 360,
+      x: leg_1.x, y: leg_1.y
+    )
+    @path += arc_points(
+      turn_1_center.x, turn_1_center.y,
+      HOLD_TURN_RADIUS,
+      (@heading + 90) % 360, (@heading - 90) % 360,
+      HOLD_TURN_STEPS,
+    )
+
+    # Inbound leg
+    inbound_start = @path.last
+    leg_2 = Geometry.rotate_point(
+      { x: inbound_start[0] + HOLD_LEG_LENGTH, y: inbound_start[1] },
+      (@heading - 180) % 360,
+      x: inbound_start[0], y: inbound_start[1]
+    )
+    @path << [leg_2.x, leg_2.y]
+
+    # Second turn (back to original heading)
+    turn_2_center = Geometry.rotate_point(
+      { x: leg_2.x + HOLD_TURN_RADIUS, y: leg_2.y },
+      (@heading + 90) % 360,
+      x: leg_2.x, y: leg_2.y
+    )
+    @path += arc_points(
+      turn_2_center.x, turn_2_center.y,
+      HOLD_TURN_RADIUS,
+      (@heading - 90) % 360, (@heading + 90) % 360,
+      HOLD_TURN_STEPS,
+    )
+
+    # If any part of the hold goes off-screen, we can't do the hold
+    unless @path.all? { |pt| pt.inside_rect?(@screen) }
+      cancel_hold
+    end
+  end
+
+  def holding?
+    !!@holding
+  end
+
+  def cancel_hold
+    @holding = false
+    @path = []
   end
 
   # Returns whether or now the takeoff animation is in progress
@@ -489,7 +536,74 @@ class Aircraft
     ]
   end
 
-  def move_along_heading
+  # Generate points for an arc.
+  def arc_points(cx, cy, radius, start_angle, end_angle, steps)
+    step = 180 / steps
+    (0..steps).map do |i|
+      angle = (start_angle - i * step) % 360
+      rad = angle.to_radians
+      [cx + Math.cos(rad) * radius, cy + Math.sin(rad) * radius]
+    end
+  end
+
+  # Advance the aircraft long its path.
+  def move_along_path
+    target = @path.first
+    dist = Geometry.distance(@position, target)
+
+    if dist <= @speed_px
+      # Snap to waypoint
+      @course = target.angle_from(@position)
+      @position = target
+      # Next waypoint
+      @path.shift
+    else
+      # Step toward waypoint
+      @course = target.angle_from(@position)
+      move_along_course
+    end
+
+    if @path.empty?
+      # Handle landing
+      if @cleared_to_land
+        # Save the tick count that we landed at for animation progress
+        @landed_at = Kernel.tick_count
+        # If it's an emergency... we made it!
+        @emergency = nil
+        # Align aircraft with runway heading for landing animation
+        # (unless it's VTOL)
+        unless @vtol
+          @course = @cleared_to_land.heading
+        end
+      end
+
+      if @taking_off
+        @taking_off = false
+        @size = AIRCRAFT_SIZE
+      end
+    end
+  end
+
+  # If the Aircraft is in a hold, we don't want to destroy the path as
+  # we advance along it, so we will use the index of @path instead.
+  def move_along_hold
+    target = @path[@hold_path_i]
+    dist = Geometry.distance(@position, target)
+
+    if dist <= @speed_px
+      # Snap to waypoint
+      @course = target.angle_from(@position)
+      @position = target
+      # Next waypoint
+      @hold_path_i = (@hold_path_i + 1) % @path.size
+    else
+      # Step toward waypoint
+      @course = target.angle_from(@position)
+      move_along_course
+    end
+  end
+
+  def move_along_course
     # VTOL aircraft land straight down
     return if @landed_at && @vtol
 

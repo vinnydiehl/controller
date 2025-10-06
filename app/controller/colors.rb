@@ -13,6 +13,9 @@ BACKGROUND_COLOR = grayscale(63)
 
 PATH_COLOR = WHITE
 CLEARED_TO_LAND_PATH_COLOR = RED
+HOLD_PATH_COLOR = {
+  r: 199, g: 110, b: 0,
+}
 
 INCOMING_COLOR = {
   r: 89, g: 86, b: 82,

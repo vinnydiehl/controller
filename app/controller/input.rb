@@ -3,9 +3,7 @@ class ControllerGame
     return if @game_over
 
     if @mouse.key_down.left
-      # See if we're clicking on a redirectable aircraft
-      @aircraft_redirecting = @aircraft.select(&:redirectable?)
-                                       .find { |ac| @mouse.intersect_rect?(ac.rect) }
+      @aircraft_redirecting = aircraft_clicked
 
       # Handle click on departure
       if !@aircraft_redirecting
@@ -80,15 +78,16 @@ class ControllerGame
             play_sound(:takeoff)
           end
         end
+
+        return
       end
 
       # Otherwise we're trying to vector an aircraft
-      return unless @aircraft_redirecting
-
       @aircraft_redirecting.vectoring = true
 
       # Clear path if there is one
       @aircraft_redirecting.path = []
+      @aircraft_redirecting.cancel_hold
       # Cancel landing clearance
       @aircraft_redirecting.cleared_to_land = false
 
@@ -145,6 +144,23 @@ class ControllerGame
     if @mouse.key_up.left && (ac = @aircraft_redirecting)
       ac.finalize_path
     end
+
+    # Right click to toggle a hold
+    if @mouse.key_down.right && (ac = aircraft_clicked)
+      if ac.holding?
+        ac.cancel_hold
+        play_sound(:click_aircraft)
+      else
+        ac.hold
+        play_sound(ac.holding? ? :hold : :error)
+      end
+    end
+  end
+
+  # Returns whether or not the mouse is over a redirectable aircraft
+  def aircraft_clicked
+    @aircraft.select(&:redirectable?)
+             .find { |ac| @mouse.intersect_rect?(ac.rect) }
   end
 
   def handle_kb_inputs
