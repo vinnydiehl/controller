@@ -317,13 +317,25 @@ class Aircraft
   end
 
   def sprite
-    {
+    sprite = {
       **rect,
       path: "sprites/aircraft/#{type}.png",
       angle: @heading,
       **(@nordo ? WHITE : RUNWAY_COLORS[@runway_type]),
       a: @alpha,
     }
+
+    if type == :helicopter
+      # Animate helicopter rotor
+      sprite.merge(
+        tile_x: 0.frame_index(3, 3, true) * AIRCRAFT_SIZE,
+        tile_y: 0,
+        tile_w: AIRCRAFT_SIZE,
+        tile_h: AIRCRAFT_SIZE,
+      )
+    else
+      sprite
+    end
   end
 
   def primitives
