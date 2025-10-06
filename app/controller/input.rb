@@ -164,6 +164,11 @@ class ControllerGame
   end
 
   def handle_kb_inputs
+    if @kb.key_down.escape
+      set_scene(:pause_menu)
+      play_sound(:pause)
+    end
+
     handle_dev_kb_inputs if development?
   end
 

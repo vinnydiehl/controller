@@ -34,12 +34,6 @@ end
 
 # Map serialization/deserialization
 class ControllerGame
-  def load_map(id)
-    @map = map_for_id(filename)
-
-    load_aircraft_types
-  end
-
   def save_map
     @args.gtk.write_file(
       "maps/#{@map.id}/#{@map.id}.dat",

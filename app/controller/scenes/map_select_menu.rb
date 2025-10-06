@@ -1,8 +1,5 @@
 class ControllerGame
   def map_select_menu_init
-    @maps = @args.gtk.list_files("maps").reject { |f| f.include?("tiled-") }
-                                        .map { |id| map_for_id(id) }
-
     # Index of currently selected map
     @map_i = 0
   end
@@ -23,7 +20,8 @@ class ControllerGame
     end
 
     if @kb.key_down.enter
-      @map = @maps[@map_i]
+      @map = selected_map
+      load_aircraft_types
       set_scene(:game)
     end
   end

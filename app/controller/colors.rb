@@ -3,6 +3,7 @@ def grayscale(v)
 end
 
 WHITE = grayscale(255)
+BLACK = grayscale(0)
 RED = {
   r: 255, g: 0, b: 0,
 }
@@ -10,6 +11,10 @@ RED = {
 BORDER_COLOR = grayscale(40)
 
 BACKGROUND_COLOR = grayscale(63)
+
+MENU_BUTTON_COLOR = grayscale(45)
+MENU_BUTTON_BORDER_COLOR = BLACK
+MENU_BUTTON_HIGHLIGHT_COLOR = grayscale(60)
 
 PATH_COLOR = WHITE
 CLEARED_TO_LAND_PATH_COLOR = RED

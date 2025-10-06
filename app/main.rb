@@ -1,10 +1,10 @@
-SCENES = %w[game map_editor map_select_menu]
+SCENES = %w[game map_editor map_select_menu pause_menu]
 
-require "lib/core_ext/numeric.rb"
+%w[numeric symbol].each { |f|  require "lib/core_ext/#{f}.rb" }
 %w[tiled/tiled json input].each { |f| require "lib/#{f}.rb" }
 
 %w[constants colors button controller
-   aircraft audio input map runway].each { |f| require "app/controller/#{f}.rb" }
+   aircraft audio input map menu runway].each { |f| require "app/controller/#{f}.rb" }
 
 require "app/controller/render/shared.rb"
 
