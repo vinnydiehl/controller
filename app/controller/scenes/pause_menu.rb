@@ -7,7 +7,7 @@ class ControllerGame
       end,
       restart: -> do
         set_scene(:game, reset_stack: true)
-        play_sound(:back)
+        play_sound(:start_game)
       end,
       resume: method(:resume),
     }
@@ -22,6 +22,6 @@ class ControllerGame
 
   def resume
     set_scene_back
-    play_sound(:resume)
+    play_sound(:back)
   end
 end

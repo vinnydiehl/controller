@@ -28,7 +28,7 @@ class ControllerGame
     if @kb.key_down.enter
       @map = selected_map
       load_aircraft_types
-      play_sound(:resume)
+      play_sound(:start_game)
       set_scene(:game)
     end
   end
