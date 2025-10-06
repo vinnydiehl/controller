@@ -62,6 +62,8 @@ class ControllerGame
       # the map editor
       Map.new(path: path, type: type, id: id)
     end
+
+    load_aircraft_types
   end
 
   def save_map
@@ -69,5 +71,11 @@ class ControllerGame
       "maps/#{@map.id}/#{@map.id}.dat",
       @map.to_h.to_json(indent_size: 2, extensions: true),
     )
+  end
+
+  # Load the aircraft types that are able to land on the current map
+  def load_aircraft_types
+    colors = @map.runways.map { |r| r.type }.uniq
+    @aircraft_types = AIRCRAFT_TYPES.select { |t| colors.include?(t[:runway]) }
   end
 end

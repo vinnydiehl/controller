@@ -9,7 +9,7 @@ class ControllerGame
       if !@aircraft_redirecting
         @map.runways.select(&:departure).each do |runway|
           if runway.mouse_in_hold_short?
-            ac_type = AIRCRAFT_TYPES.find { |t| t.type == runway.departure.type }
+            ac_type = @aircraft_types.find { |t| t.type == runway.departure.type }
             course = runway.hold_short_heading
 
             # Construct a path for the aircraft to taxi onto the runway and takeoff

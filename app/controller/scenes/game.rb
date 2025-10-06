@@ -31,7 +31,7 @@ class ControllerGame
         if @kb.key_down_or_held?(:ctrl)
           spawn_departure
         else
-          spawn_aircraft(AIRCRAFT_TYPES.sample)
+          spawn_aircraft(@aircraft_types.sample)
         end
       end
     end
@@ -114,7 +114,7 @@ class ControllerGame
 
   def handle_incoming_wave
     if @wave_spawn_timer <= 0
-      spawn_aircraft(AIRCRAFT_TYPES.sample)
+      spawn_aircraft(@aircraft_types.sample)
       @incoming_wave -= 1
 
       if @incoming_wave > 0

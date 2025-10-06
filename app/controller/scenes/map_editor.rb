@@ -164,6 +164,7 @@ class ControllerGame
         ).slice(:x, :y, :w, :h),
         on_click: -> do
           save_map
+          load_aircraft_types
           set_scene_back
         end,
         text: "Save",
