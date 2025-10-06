@@ -16,6 +16,8 @@ class ControllerGame
 
     @hold_delay = 0
 
+    @saving = false
+
     # Map input
     @map_input_box = Layout.rect(
       row: -0.5,
@@ -163,9 +165,7 @@ class ControllerGame
           row: 6, col: 9.25, w: 2.75, h: 0.75,
         ).slice(:x, :y, :w, :h),
         on_click: -> do
-          save_map
-          load_aircraft_types
-          set_scene_back
+          @saving = true
         end,
         text: "Save",
       ),
@@ -191,6 +191,11 @@ class ControllerGame
   end
 
   def map_editor_tick
+    if @saving
+      save
+      return
+    end
+
     if @display_save_modal
       @save_buttons.each(&:tick)
     else
@@ -415,6 +420,18 @@ class ControllerGame
         end
       end
     end
+  end
+
+  def save
+    # Save map thumbnail
+    @outputs.screenshots << {
+      x: 0, y: 0, w: @screen.w, h: @screen.h,
+      path: "sprites/thumbnails/#{@map.id}.png",
+    }
+
+    save_map
+    load_aircraft_types
+    set_scene_back
   end
 
   def active?(runway)

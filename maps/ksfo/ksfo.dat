@@ -56,7 +56,7 @@
       "heading": 45.160043660606,
       "helipad": null,
       "surface": {"@@jm:symbol":"cement"},
-      "hold_short": null
+      "hold_short": {"@@jm:symbol":"left"}
     }
   ]
 }

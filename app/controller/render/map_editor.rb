@@ -1,8 +1,12 @@
 class ControllerGame
   def render_map_editor
     render_map
-
     render_runways
+
+    # There's a frame during saving where we need to capture a thumbnail.
+    # We only want the map and runways present for that.
+    return if @saving
+
     render_runway_markers
     render_hold_short
 
