@@ -24,6 +24,10 @@ class Runway
     set_hold_short_point
   end
 
+  def reset
+    @departure = nil
+  end
+
   def set_hold_short_point
     # Point just to the side of the runway where departures will appear
     distance_from_center = (RWY_WIDTH / 2) + HOLD_SHORT_DISTANCE

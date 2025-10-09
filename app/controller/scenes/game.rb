@@ -5,6 +5,8 @@ class ControllerGame
 
     @aircraft = []
 
+    @map.runways.each(&:reset)
+
     # Wave scheduling
     # First wave spawns with a slight delay
     @next_wave_in = 2.seconds
