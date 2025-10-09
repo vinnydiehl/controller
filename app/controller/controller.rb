@@ -24,8 +24,12 @@ class ControllerGame
     # Development mode prevents spawns (keybinds are available to spawn manually)
     @dev_mode = development?
 
+    # Load all maps
+    @maps = @args.gtk.list_files("maps").reject { |f| f.include?("tiled-") }
+                                        .map { |id| map_for_id(id) }
+
     @scene_stack = []
-    set_scene(:game, reset_stack: true)
+    set_scene(:map_select_menu, reset_stack: true)
   end
 
   def set_scene(scene, reset_stack: false)

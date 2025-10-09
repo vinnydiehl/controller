@@ -14,8 +14,6 @@ class ControllerGame
     @wave_spawn_timer = 0
 
     @warnings = []
-
-    load_map("ksfo")
   end
 
   def game_tick

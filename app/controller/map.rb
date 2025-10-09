@@ -34,7 +34,14 @@ end
 
 # Map serialization/deserialization
 class ControllerGame
-  def load_map(id)
+  def save_map
+    @args.gtk.write_file(
+      "maps/#{@map.id}/#{@map.id}.dat",
+      @map.to_h.to_json(indent_size: 2, extensions: true),
+    )
+  end
+
+  def map_for_id(id)
     # Path including filename without extension
     filename = "maps/#{id}/#{id}"
 
@@ -49,7 +56,8 @@ class ControllerGame
       raise StandardError.new("Map image/TMX not found.")
     end
 
-    @map = if @args.gtk.stat_file("#{filename}.dat")
+
+    if @args.gtk.stat_file("#{filename}.dat")
       map_data = Argonaut::JSON.parse(
         @args.gtk.read_file("#{filename}.dat"),
         symbolize_keys: true,
@@ -62,15 +70,6 @@ class ControllerGame
       # the map editor
       Map.new(path: path, type: type, id: id)
     end
-
-    load_aircraft_types
-  end
-
-  def save_map
-    @args.gtk.write_file(
-      "maps/#{@map.id}/#{@map.id}.dat",
-      @map.to_h.to_json(indent_size: 2, extensions: true),
-    )
   end
 
   # Load the aircraft types that are able to land on the current map
