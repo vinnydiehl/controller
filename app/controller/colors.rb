@@ -58,3 +58,6 @@ RUNWAY_COLORS = {
   green: { r: 151, g: 220, b: 33 },
   orange: { r: 255, g: 128, b: 0 },
 }
+
+THUMBNAIL_SIZE_DIVIDEND = 2
+THUMBNAIL_PADDING = 20

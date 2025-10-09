@@ -1,8 +1,13 @@
+ARROW_ALPHA = 100
+ARROW_GREY_OUT_ALPHA = 25
+ARROW_BRIGHT_ALPHA = 255
+
 class ControllerGame
   def render_map_select_menu
     render_background
 
     render_name_label
+    render_arrows
     render_thumbnail
   end
 
@@ -17,15 +22,31 @@ class ControllerGame
     }
   end
 
+  def render_arrows
+    @arrows.each do |button|
+      if button[:grey_out] == @map_i
+        button[:a] = ARROW_GREY_OUT_ALPHA
+      else
+        if button[:a] == ARROW_GREY_OUT_ALPHA
+          button[:a] = ARROW_ALPHA
+        end
+
+        # We're going to be pulsing the arrows white on hover, this makes it fade back.
+        # Doing this before setting bright alpha so there is no flickering
+        button[:a] -= 1 if button[:a] > ARROW_ALPHA
+
+        # Pulse button white on hover
+        button[:a] = ARROW_BRIGHT_ALPHA if @mouse.intersect_rect?(button)
+      end
+
+      @primitives << button
+    end
+  end
+
   def render_thumbnail
-    size_dividend = 2
     @primitives << {
-      x: @cx, y: @cy,
-      w: @screen.w / size_dividend,
-      h: @screen.h / size_dividend,
+      **@thumbnail_rect,
       path: "sprites/thumbnails/#{selected_map.id}.png",
-      anchor_x: 0.5,
-      anchor_y: 0.5,
     }
   end
 end
