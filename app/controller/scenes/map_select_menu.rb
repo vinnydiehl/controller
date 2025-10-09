@@ -77,14 +77,8 @@ class ControllerGame
 
   def handle_map_select_menu_scroll
     return unless (d = @mouse.wheel&.y) && @mouse.intersect_rect?(@thumbnail_rect)
-
-    orig = @map_i
     # Invert sign so scrolling down increases map index
-    if scroll_map(d * -1)
-      # Pulse the arrow in the direction that we scrolled
-      button_i = @map_i > orig ? 0 : 1
-      @arrows[button_i][:a] = ARROW_BRIGHT_ALPHA
-    end
+    scroll_map(d * -1)
   end
 
   def handle_map_select_menu_kb_inputs
@@ -112,7 +106,12 @@ class ControllerGame
     if @map_i == orig
       nil
     else
+      # Pulse the arrow in the direction that we scrolled
+      button_i = @map_i > orig ? 0 : 1
+      @arrows[button_i][:a] = ARROW_BRIGHT_ALPHA
+
       play_sound(:scroll)
+
       @map_i
     end
   end
