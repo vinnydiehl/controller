@@ -9,6 +9,8 @@ class ControllerGame
     render_name_label
     render_arrows
     render_thumbnail
+
+    render_buttons
   end
 
   def render_name_label
@@ -48,5 +50,9 @@ class ControllerGame
       **@thumbnail_rect,
       path: "sprites/thumbnails/#{selected_map.id}.png",
     }
+  end
+
+  def render_buttons
+    @primitives << @buttons
   end
 end

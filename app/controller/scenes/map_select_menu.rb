@@ -39,11 +39,23 @@ class ControllerGame
         grey_out: 0,
       },
     ]
+
+    @buttons = [
+      Button.new(
+        **Layout.rect(
+          row: 11.5, col: 22, w: 2, h: 1,
+        ).slice(:x, :y, :w, :h),
+        on_click: method(:load_selected_map),
+        text: "Start",
+      ),
+    ]
   end
 
   def map_select_menu_tick
     handle_map_select_menu_mouse_inputs
     handle_map_select_menu_kb_inputs
+
+    @buttons.each(&:tick)
   end
 
   def handle_map_select_menu_mouse_inputs
@@ -87,10 +99,7 @@ class ControllerGame
     end
 
     if @kb.key_down.enter
-      @map = selected_map
-      load_aircraft_types
-      play_sound(:start_game)
-      set_scene(:game)
+      load_selected_map
     end
   end
 
@@ -106,6 +115,13 @@ class ControllerGame
       play_sound(:scroll)
       @map_i
     end
+  end
+
+  def load_selected_map
+    @map = selected_map
+    load_aircraft_types
+    play_sound(:start_game)
+    set_scene(:game)
   end
 
   def selected_map
