@@ -17,6 +17,10 @@ class ControllerGame
     render_aircraft
 
     render_incoming_alerts
+
+    if @game_over
+      render_game_over_modal
+    end
   end
 
   def render_score
@@ -114,6 +118,35 @@ class ControllerGame
       angle_anchor_x: 0,
       angle_anchor_y: 0.5,
       path: target,
+    }
+  end
+
+  def render_game_over_modal
+    @primitives << [
+      @game_over_modal,
+      @game_over_modal.merge(primitive_marker: :border, **BORDER_COLOR),
+      @game_over_buttons,
+    ]
+
+    @primitives << {
+      **Layout.point(
+        row: 4.4, col: 12,
+      ),
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      text: "Game Over",
+      size_enum: 6,
+      **WHITE,
+    }
+    @primitives << {
+      **Layout.point(
+        row: 5, col: 12,
+      ),
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      text: GAME_OVER[@game_over],
+      size_px: 15,
+      **WHITE,
     }
   end
 end

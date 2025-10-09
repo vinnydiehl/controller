@@ -13,14 +13,50 @@ class ControllerGame
     # Timer to track time between aircraft in a given wave
     @wave_spawn_timer = 0
 
+    @collisions = []
     @warnings = []
+
+    # Game over modal
+    @game_over_modal = Layout.rect(
+      row: 4.75, col: 9,
+      w: 6, h: 2.5,
+      include_row_gutter: true,
+      include_col_gutter: true
+    ).merge(primitive_marker: :solid, **MAP_EDITOR_INPUT_BG_COLOR)
+    @game_over_buttons = [
+      Button.new(
+        **Layout.rect(
+          row: 6.25, col: 9.25, w: 2.75, h: 0.75,
+        ).slice(:x, :y, :w, :h),
+        on_click: -> do
+          @game_over = nil
+          set_scene(:game, reset_stack: true)
+          play_sound(:start_game)
+        end,
+        text: "Restart",
+      ),
+      Button.new(
+        **Layout.rect(
+          row: 6.25, col: 12, w: 2.75, h: 0.75,
+        ).slice(:x, :y, :w, :h),
+        on_click: -> do
+          @game_over = nil
+          set_scene(:map_select_menu, reset_stack: true)
+          play_sound(:back)
+        end,
+        text: "Menu",
+      ),
+    ]
   end
 
   def game_tick
+    if @game_over
+      @game_over_buttons.each(&:tick)
+      return
+    end
+
     handle_mouse_inputs
     handle_kb_inputs
-
-    return if @game_over
 
     # For development:
     # Space to spawn an incoming aircraft, Ctrl+Space to spawn a departure
@@ -42,14 +78,14 @@ class ControllerGame
     # Game over if there's a collision
     @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
     if @collisions.any?
-      @game_over = true
+      @game_over = :collision
       play_sound(:collision)
       return
     end
 
     # Game over if an emergency aircraft timer reaches zero
     if @aircraft.select(&:emergency).any? { |ac| ac.emergency <= 0 }
-      @game_over = true
+      @game_over = :emergency
       play_sound(:collision)
       return
     end
@@ -58,7 +94,7 @@ class ControllerGame
     @map.runways.select(&:departure).each do |runway|
       runway.departure[:timer] -= 1 unless @game_over
       if runway.departure[:timer] <= 0
-        @game_over = true
+        @game_over = :departure
         play_sound(:departure_failure)
         return
       end

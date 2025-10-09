@@ -121,3 +121,10 @@ ANGLE = {
   left: 180,
   down: 270,
 }
+
+# Messages for different game over states
+GAME_OVER = {
+  collision: "There's been a mid-air collision!",
+  emergency: "An emergency aircraft crashed!",
+  departure: "A departure is running late!",
+}
