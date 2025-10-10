@@ -3,9 +3,6 @@ class Aircraft
                     landed nordo type speed runway_type vectoring vtol]
   attr_reader *%i[course departing departed entry_point incoming_marker_angle]
 
-  # Degrees/frame for smoothing sprite angle
-  ANGLE_SMOOTHING_RATE = 5.0
-
   # Lines for the edges of the screen, the order of these matters
   # for setting the angle of the incoming marker
   SCREEN_LINES = [
@@ -683,14 +680,31 @@ class Aircraft
 
   # Ease the heading toward the course
   def ease_heading
+    # Find delta between heading and course
     delta = (@course - @heading) % 360
-    # Shortest path
     delta -= 360 if delta > 180
+    abs_delta = delta.abs
+    # Normalize delta (0–180) to 0–1
+    t = [abs_delta / 180, 1].min
 
-    if delta.abs <= ANGLE_SMOOTHING_RATE
+    # Minimum turn rate (deg/frame) for small deltas (as small as possible)
+    base_rate = Float::EPSILON
+    # Max turn rate for very large deltas
+    max_rate = 5
+    # Curve steepness; higher == more sensitive to large deltas
+    response = 5
+
+    # Ease-in-out curve
+    scale = Math.sin(t * Math::PI / 2)
+
+    # Compute adaptive rate
+    rate = base_rate + (max_rate - base_rate) * scale
+
+    # Trend heading towards the course at the appropriate rate
+    if abs_delta <= rate
       @heading = @course
     else
-      @heading += ANGLE_SMOOTHING_RATE * (delta.positive? ? 1 : -1)
+      @heading += rate * (delta.positive? ? 1 : -1)
       @heading %= 360
     end
   end
