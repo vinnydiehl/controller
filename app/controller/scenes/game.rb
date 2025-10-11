@@ -240,10 +240,15 @@ class ControllerGame
       }[[:left, :right, :top, :bottom].sample]
 
       circle = { x: pos.x, y: pos.y, radius: AIRCRAFT_RADIUS + SPAWN_BUFFER }
+      # Prevent spawning directly into a departing aircraft
+      departing_circle = circle.merge(radius: AIRCRAFT_RADIUS + SPAWN_DEPARTURE_BUFFER)
 
       # Check against all existing aircraft
-      too_close = @aircraft.any? do |a|
-        Geometry.intersect_circle?(circle, a.hitbox)
+      too_close = @aircraft.any? do |ac|
+        Geometry.intersect_circle?(
+          ac.departing ? departing_circle : circle,
+          ac.hitbox,
+        )
       end
 
       return pos unless too_close

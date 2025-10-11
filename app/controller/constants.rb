@@ -63,6 +63,9 @@ SPAWN_PADDING = AIRCRAFT_SIZE * 3
 # 50 I always got at least 30, which is more than good enough.
 SPAWN_RETRY_LIMIT = 10
 SPAWN_BUFFER = AIRCRAFT_RADIUS * 4
+# To ensure that incoming aircraft can't spawn too close to
+# a departing aircraft
+SPAWN_DEPARTURE_BUFFER = AIRCRAFT_RADIUS * 15
 
 # Pixels between points in an aircraft's path (for path smoothing)
 MIN_DIST = 8.0
