@@ -60,10 +60,20 @@ class Aircraft
     # This will fade to 0 during landing animation
     @alpha = 255
 
+
+    # For tracking whether or not the aircraft is allowed to be off-screen:
     # The aircraft begins off the screen. This will be set to false
-    # once it enters the screen, and will be used in the future for
-    # turning the aircraft around if it hits the edge of the screen.
-    @offscreen = true
+    # once it fully enters the screen and then the edge of the aircraft
+    # will bounce off the edge of the screen
+    @incoming_offscreen = true
+    # This will be set to true once the center of the aircraft has entered
+    # the screen, at this point it will become controllable. If it attempts
+    # to steer off-screen at this point, the center of the aircraft will
+    # bounce off the edge
+    @incoming_point_on_screen = false
+    # Departing aircraft will be allowed to leave the screen in a certain
+    # direction, this variable tracks that
+    @departing_offscreen = false
 
     @departed = false
 
@@ -102,8 +112,9 @@ class Aircraft
   end
 
   def tick
-    if @offscreen && @position.inside_rect?(@screen)
-      @offscreen = false
+    if @incoming_offscreen
+      @incoming_offscreen = !rect.inside_rect?(@screen)
+      @incoming_point_on_screen = @position.inside_rect?(@screen)
     end
 
     # Remove dotted path points the aircraft has already passed
@@ -467,7 +478,7 @@ class Aircraft
   # Can this aircraft be redirected? If this returns false, clicking on the
   # aircraft will do nothing
   def redirectable?
-    !nordo && !taking_off? && !landing?
+    !nordo && !taking_off? && !landing? && (@incoming_point_on_screen || @departing)
   end
 
   private
@@ -614,44 +625,56 @@ class Aircraft
   end
 
   def handle_screen_edge_collision
-    return if @offscreen
+    return if @departing_offscreen
 
     bounced = false
 
-    # Left/right walls
-    if @position.x <= 0
-      if @departing == :left
-        @offscreen = true
-      else
-        @position.x = 0
-        @course = 180 - @course
-        bounced = true
-      end
-    elsif @position.x >= @screen.w
-      if @departing == :right
-        @offscreen = true
-      else
-        @position.x = @screen.w
-        @course = 180 - @course
-        bounced = true
-      end
-    end
+    edges = {
+      up: {
+        hit: @position.y + AIRCRAFT_RADIUS >= @screen.h,
+        center_hit: @position.y >= @screen.h,
+        set: -> { @position.y = @screen.h - AIRCRAFT_RADIUS },
+        center_set: -> { @position.y = @screen.h },
+        reflect: -> { @course = -@course },
+      },
+      down: {
+        hit: @position.y <= AIRCRAFT_RADIUS,
+        center_hit: @position.y <= 0,
+        set: -> { @position.y = AIRCRAFT_RADIUS },
+        center_set: -> { @position.y = 0 },
+        reflect: -> { @course = -@course },
+      },
+      left: {
+        hit: @position.x <= AIRCRAFT_RADIUS,
+        center_hit: @position.x <= 0,
+        set: -> { @position.x = AIRCRAFT_RADIUS },
+        center_set: -> { @position.x = 0 },
+        reflect: -> { @course = 180 - @course },
+      },
+      right: {
+        hit: @position.x + AIRCRAFT_RADIUS >= @screen.w,
+        center_hit: @position.x >= @screen.w,
+        set: -> { @position.x = @screen.w - AIRCRAFT_RADIUS },
+        center_set: -> { @position.x = @screen.w },
+        reflect: -> { @course = 180 - @course },
+      },
+    }
 
-    # Top/bottom walls
-    if @position.y <= 0
-      if @departing == :down
-        @offscreen = true
+    edges.each do |direction, data|
+      # Have we hit a wall (either with the edge of the aircraft if it's
+      # already on-screen, or the center of the aircraft if it hasn't
+      # fully entered the screen)?
+      next unless (!@incoming_offscreen && data[:hit]) ||
+                   (@incoming_point_on_screen && data[:center_hit])
+
+      if @departing == direction
+        # Allow departures to leave the screen in the appropriate direction
+        @departing_offscreen = true
+        return
       else
-        @position.y = 0
-        @course = -@course
-        bounced = true
-      end
-    elsif @position.y >= @screen.h
-      if @departing == :up
-        @offscreen = true
-      else
-        @position.y = @screen.h
-        @course = -@course
+        # Otherwise set it back to where it was and bounce it off the wall
+        data[@incoming_offscreen ? :center_set : :set].call
+        data[:reflect].call
         bounced = true
       end
     end
@@ -661,14 +684,14 @@ class Aircraft
       @course %= 360
       # If path extends off the screen it will get stuck on the edge,
       # so reset it
-      @path = []
+      @path.clear
     end
   end
 
   def handle_departure
-    # @offscreen check isn't strictly needed, but prevents doing
+    # @departing_offscreen check isn't strictly needed, but prevents doing
     # unnecessary collision checks
-    if @departing && @offscreen && !rect.intersect_rect?(@screen)
+    if @departing && @departing_offscreen && !rect.intersect_rect?(@screen)
       @departed = true
     end
   end
