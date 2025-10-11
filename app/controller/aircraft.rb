@@ -112,9 +112,17 @@ class Aircraft
   end
 
   def tick
+    # Handle aircraft coming onto the screen
     if @incoming_offscreen
       @incoming_offscreen = !rect.inside_rect?(@screen)
       @incoming_point_on_screen = @position.inside_rect?(@screen)
+    end
+
+    # If a departure begins to head offscreen but then comes back
+    # onscreen, we need to unset this so it can't leave the screen
+    # on any edge
+    if @departing_offscreen && rect.inside_rect?(@screen)
+      @departing_offscreen = false
     end
 
     # Remove dotted path points the aircraft has already passed
