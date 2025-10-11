@@ -403,6 +403,22 @@ class Aircraft
   def finalize_path
     clear_dots
     @vectoring = false
+
+    if cleared_to_land
+      x, y = cleared_to_land.position
+      tdz = {
+        x: x, y: y,
+        radius: cleared_to_land.tdz_radius,
+      }
+
+      @path.reject! do |p|
+        p = { x: p.x, y: p.y }
+        p.point_inside_circle?(tdz)
+      end
+
+      @path << cleared_to_land.position
+    end
+
     smooth_path
   end
 
