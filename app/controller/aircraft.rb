@@ -666,14 +666,9 @@ class Aircraft
   end
 
   def handle_departure
-    return unless @departing && @offscreen
-
-    diameter = AIRCRAFT_SIZE / 2
-
-    if @position.x + diameter <= 0 ||
-       @position.x - diameter >= @screen.w ||
-       @position.y + diameter <= 0 ||
-       @position.y - diameter >= @screen.h
+    # @offscreen check isn't strictly needed, but prevents doing
+    # unnecessary collision checks
+    if @departing && @offscreen && !rect.intersect_rect?(@screen)
       @departed = true
     end
   end
