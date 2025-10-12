@@ -98,8 +98,9 @@ class Runway
 
     if ac_type == :helicopter
       # Animate helicopter rotor
+      start = @departure_spawned_at || 0
       sprite.merge(
-        tile_x: @departure_spawned_at.frame_index(3, 3, true) * AIRCRAFT_SIZE,
+        tile_x: start.frame_index(3, 3, true) * AIRCRAFT_SIZE,
         tile_y: 0,
         tile_w: AIRCRAFT_SIZE,
         tile_h: AIRCRAFT_SIZE,
