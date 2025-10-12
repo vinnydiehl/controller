@@ -649,9 +649,13 @@ class Aircraft
       if @cleared_to_land
         # Save the tick count that we landed at for animation progress
         @landed_at = Kernel.tick_count
+
         # If it's an emergency... we made it! Stop the timer
-        @emergency = nil
-        @landed_emergency = true
+        if @emergency
+          @landed_emergency = true
+          @emergency = nil
+        end
+
         # Align aircraft with runway heading for landing animation
         # (unless it's VTOL)
         unless @vtol
