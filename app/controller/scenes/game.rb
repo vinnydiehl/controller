@@ -228,7 +228,14 @@ class ControllerGame
   def handle_birds
     @birds.tick
 
+    # Delete the birds when they go offscreen
+    unless @birds.offscreen? || @birds.rect.intersect_rect?(@screen)
+      @birds = nil
+      return
+    end
+
     # Handle bird collisions
+    return unless @birds.collideable?
     @aircraft.reject(&:emergency).each do |ac|
       if Geometry.intersect_circle?(ac.hitbox, @birds.hitbox)
         ac.declare_emergency(@map.runways)
@@ -242,11 +249,6 @@ class ControllerGame
 
         play_sound(:emergency)
       end
-    end
-
-    # Delete the birds when they go offscreen
-    unless @birds.offscreen? || @birds.rect.intersect_rect?(@screen)
-      @birds = nil
     end
   end
 

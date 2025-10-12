@@ -1,4 +1,6 @@
 class Birds
+  attr_reader :position
+
   def initialize(position)
     @position = position
 
@@ -50,5 +52,11 @@ class Birds
 
   def offscreen?
     @offscreen
+  end
+
+  # Birds only affect a collision when they're at least halfway on-screen,
+  # this prevents weird behavior around the edges e.g. with departures
+  def collideable?
+    @position.inside_rect?(@screen)
   end
 end
