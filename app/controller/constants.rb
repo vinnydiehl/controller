@@ -37,6 +37,7 @@ SCORE_VALUE = {
   departure: 1,
   emergency: 3,
   nordo: 5,
+  birds: 5,
 }
 
 # Size of runway surface middle sprites

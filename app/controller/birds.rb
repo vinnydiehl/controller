@@ -3,6 +3,8 @@ class Birds
 
   def initialize(position)
     @position = position
+    @struck = false
+    @offscreen = true
 
     @speed_px = BIRDS_SPEED / 60
 
@@ -12,8 +14,6 @@ class Birds
     @course = @position.angle_to([@screen.w / 2, @screen.h / 2]) +
               Numeric.rand(-45..45)
     @course %= 360
-
-    @offscreen = true
   end
 
   def tick
@@ -58,5 +58,13 @@ class Birds
   # this prevents weird behavior around the edges e.g. with departures
   def collideable?
     @position.inside_rect?(@screen)
+  end
+
+  def strike
+    @struck = true
+  end
+
+  def struck?
+    !!@struck
   end
 end

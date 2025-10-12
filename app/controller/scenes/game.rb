@@ -1,11 +1,6 @@
 class ControllerGame
   def game_init
-    @score = {
-      land: 0,
-      departure: 0,
-      emergency: 0,
-      nordo: 0,
-    }
+    @score = SCORE_VALUE.map { |k, _| [k, 0] }.to_h
 
     @game_over = nil
 
@@ -230,6 +225,10 @@ class ControllerGame
 
     # Delete the birds when they go offscreen
     unless @birds.offscreen? || @birds.rect.intersect_rect?(@screen)
+      unless @birds.struck?
+        @score[:birds] += 1
+        play_sound(:birds)
+      end
       @birds = nil
       return
     end
@@ -240,6 +239,7 @@ class ControllerGame
       if Geometry.intersect_circle?(ac.hitbox, @birds.hitbox)
         ac.declare_emergency(@map.runways)
         ac.birdstrike = true
+        @birds.strike
 
         # Departing aircraft must return and NORDO aircraft become
         # controllable (guess they decided to get their head out of
