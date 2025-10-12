@@ -1,7 +1,8 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
                     landed nordo type speed runway_type vectoring vtol]
-  attr_reader *%i[course departing departed entry_point incoming_marker_angle]
+  attr_reader *%i[course departing departed entry_point
+                  incoming_marker_angle landed_emergency]
 
   # Lines for the edges of the screen, the order of these matters
   # for setting the angle of the incoming marker
@@ -600,8 +601,9 @@ class Aircraft
       if @cleared_to_land
         # Save the tick count that we landed at for animation progress
         @landed_at = Kernel.tick_count
-        # If it's an emergency... we made it!
+        # If it's an emergency... we made it! Stop the timer
         @emergency = nil
+        @landed_emergency = true
         # Align aircraft with runway heading for landing animation
         # (unless it's VTOL)
         unless @vtol

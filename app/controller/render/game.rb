@@ -30,7 +30,7 @@ class ControllerGame
       row_anchor: 0.5,
       col_anchor: 0.5,
     ).merge(
-      text: @score,
+      text: score,
       size_enum: 10,
       anchor_x: 0,
       anchor_y: 0.5,

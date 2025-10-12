@@ -31,6 +31,14 @@ AIRCRAFT_TYPES = [
   },
 ]
 
+# Points scored for various actions
+SCORE_VALUE = {
+  land: 1,
+  departure: 1,
+  emergency: 3,
+  nordo: 5,
+}
+
 # Size of runway surface middle sprites
 SURFACE_INCREMENT = {
   nil => 1,

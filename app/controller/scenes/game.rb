@@ -1,7 +1,13 @@
 class ControllerGame
   def game_init
-    @score = 0
-    @game_over = false
+    @score = {
+      land: 0,
+      departure: 0,
+      emergency: 0,
+      nordo: 0,
+    }
+
+    @game_over = nil
 
     @aircraft = []
 
@@ -270,21 +276,31 @@ class ControllerGame
   def handle_scoring
     # Score and cull landed/departed aircraft
     landed = @aircraft.select(&:landed)
-    unless landed.empty?
-      @score += landed.size
+    if landed.any?
+      emergencies = landed.count(&:landed_emergency)
+      nordos = landed.count(&:nordo)
+      normal_landings = landed.size - emergencies - nordos
 
-      play_sound(:nordo_land) if landed.any?(&:nordo)
-      play_sound(:land) if landed.any? { |a| !a.nordo }
+      @score[:land] += normal_landings
+      @score[:emergency] += emergencies
+      @score[:nordo] += nordos
+
+      play_sound(:nordo_land) if nordos > 0
+      play_sound(:land) if normal_landings + emergencies > 0
 
       @aircraft.reject!(&:landed)
     end
 
     count = @aircraft.count(&:departed)
-    @score += count
+    @score[:departure] += count
     @aircraft.reject!(&:departed)
     if count > 0
       play_sound(:depart)
     end
+  end
+
+  def score
+    @score.reduce(0) { |sum, (type, n)| sum + (SCORE_VALUE[type] * n) }
   end
 
   def find_circle_collisions(circles)
