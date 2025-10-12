@@ -1,7 +1,7 @@
 class Runway
   attr_accessor *%i[type name position length tdz_radius
                     heading helipad surface hold_short]
-  attr_reader :departure, :hold_short_point
+  attr_reader :departure, :departure_spawned_at, :hold_short_point
 
   # Required kwargs:
   #  * type: Color of the runway
@@ -20,6 +20,8 @@ class Runway
 
     # This will get set if there's a pending departure
     @departure = nil
+    # For starting sprite animation
+    @departure_spawned_at = nil
 
     set_hold_short_point
   end
@@ -52,6 +54,7 @@ class Runway
       type: AIRCRAFT_TYPES.select { |t| t[:runway] == type }.sample.type,
       timer: DEPARTURE_TIME,
     }
+    @departure_spawned_at = Kernel.tick_count
   end
 
   def depart
@@ -83,8 +86,7 @@ class Runway
   # use the first one it can find that can land on that type of runway.
   def hold_short_sprite(ac_type = AIRCRAFT_TYPES.find { |t| t[:runway] == @type }.type)
     x, y = @hold_short_point
-
-    {
+    sprite = {
       x: x, y: y,
       w: DEPARTURE_SIZE, h: DEPARTURE_SIZE,
       angle: @heading + (@hold_short == :right ? 90 : -90),
@@ -93,6 +95,18 @@ class Runway
       anchor_y: 0.5,
       **RUNWAY_COLORS[@type],
     }
+
+    if ac_type == :helicopter
+      # Animate helicopter rotor
+      sprite.merge(
+        tile_x: @departure_spawned_at.frame_index(3, 3, true) * AIRCRAFT_SIZE,
+        tile_y: 0,
+        tile_w: AIRCRAFT_SIZE,
+        tile_h: AIRCRAFT_SIZE,
+      )
+    else
+      sprite
+    end
   end
 
   def hold_short_label(seconds = @departure.timer.to_seconds)

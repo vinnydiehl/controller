@@ -30,9 +30,10 @@ class Aircraft
   ]
 
   def initialize(position:, type:, speed:, runway:, vtol:,
-                 course: nil, departing: nil, size: AIRCRAFT_SIZE)
-    @position, @type, @runway_type, @vtol, @course, @departing, @size =
-      position, type, runway, vtol, course, departing, size
+                 course: nil, departing: nil, size: AIRCRAFT_SIZE,
+                 spawned_at: Kernel.tick_count)
+    @position, @type, @runway_type, @vtol, @course, @departing, @size, @spawned_at =
+      position, type, runway, vtol, course, departing, size, spawned_at
 
     set_speed(speed)
 
@@ -60,7 +61,6 @@ class Aircraft
     @landed_at = nil
     # This will fade to 0 during landing animation
     @alpha = 255
-
 
     # For tracking whether or not the aircraft is allowed to be off-screen:
     # The aircraft begins off the screen. This will be set to false
@@ -108,8 +108,6 @@ class Aircraft
 
     # Cache for dotted path
     @dotted_path_primitives = []
-
-    @spawned_at = Kernel.tick_count
   end
 
   def tick

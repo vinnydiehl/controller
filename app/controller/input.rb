@@ -69,6 +69,7 @@ class ControllerGame
               course: course,
               departing: runway.departure[:direction],
               size: DEPARTURE_SIZE,
+              spawned_at: runway.departure_spawned_at
             ).tap do |ac|
               ac.path = path
               ac.smooth_path(0)
