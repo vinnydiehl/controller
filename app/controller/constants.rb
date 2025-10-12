@@ -49,6 +49,9 @@ SURFACE_INCREMENT = {
 AIRCRAFT_SIZE = 32
 AIRCRAFT_RADIUS = AIRCRAFT_SIZE / 2
 
+BIRDS_SIZE = 32
+BIRDS_SPEED = 10
+
 # Path smoothing:
 # Below this angle triggers smoothing with min points
 MIN_ANGLE_THRESHOLD = 120.0

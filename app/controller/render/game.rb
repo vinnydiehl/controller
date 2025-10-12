@@ -13,6 +13,8 @@ class ControllerGame
       render_warnings
     end
 
+    render_birds if @birds
+
     render_paths
     render_aircraft
 
@@ -76,6 +78,10 @@ class ControllerGame
         **COLLISION_COLOR,
       }
     end
+  end
+
+  def render_birds
+    @primitives << @birds.sprite
   end
 
   def render_paths

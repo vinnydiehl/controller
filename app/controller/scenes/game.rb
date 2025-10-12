@@ -13,6 +13,8 @@ class ControllerGame
 
     @map.runways.each(&:reset)
 
+    @birds = nil
+
     # Wave scheduling
     # First wave spawns with a slight delay
     @next_wave_in = 2.seconds
@@ -67,7 +69,9 @@ class ControllerGame
     handle_kb_inputs
 
     # For development:
-    # Space to spawn an incoming aircraft, Ctrl+Space to spawn a departure
+    #  * Space to spawn an incoming aircraft
+    #  * Ctrl+Space to spawn a departure
+    #  * Ctrl+B to spawn birds
     if development?
       if @kb.key_down.space
         if @kb.key_down_or_held?(:ctrl)
@@ -76,50 +80,22 @@ class ControllerGame
           spawn_aircraft(@aircraft_types.sample)
         end
       end
+
+      if @kb.key_down_or_held?(:ctrl) && @kb.key_down.b
+        spawn_birds
+      end
     end
 
     handle_spawns unless @dev_mode
 
     @aircraft.each(&:tick)
+    handle_birds if @birds
+
     handle_scoring
-
-    # Game over if there's a collision
-    @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
-    if @collisions.any?
-      @game_over = :collision
-      play_sound(:collision)
-      return
-    end
-
-    # Game over if an emergency aircraft timer reaches zero
-    if @aircraft.select(&:emergency).any? { |ac| ac.emergency <= 0 }
-      @game_over = :emergency
-      play_sound(:collision)
-      return
-    end
-
-    # Decrement departure timers, game over if one reaches zero
-    @map.runways.select(&:departure).each do |runway|
-      runway.departure[:timer] -= 1 unless @game_over
-      if runway.departure[:timer] <= 0
-        @game_over = :departure
-        play_sound(:departure_failure)
-        return
-      end
-    end
-
-    # Find warnings and play sound if there's a new one
-    warnings_orig = @warnings.dup
-    @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))
-    # If one warning disappears the same frame as a new one appears this
-    # won't play a new sound, but I can't think of a better way to
-    # do this without extensive modification to the warning system
-    if @warnings.size > warnings_orig.size
-      play_sound(:warning)
-    end
+    handle_game_over
+    handle_warnings
   end
 
-  # Handles spawning of incoming aircraft and departures.
   def handle_spawns
     # Spawn aircraft in waves. The wave system works as follows:
     #
@@ -138,13 +114,20 @@ class ControllerGame
       @next_wave_in -= 1
     end
 
-    # For departure spawns, there is a 50% chance of spawning a departure
-    # every 5 seconds.
-    if @ticks > 0 && @ticks % 10.seconds == 0
-      if rand < 0.5
-        spawn_departure
-      end
+    # Departure spawns
+    if periodic_chance(50, 10)
+      spawn_departure
     end
+
+    # Bird spawns
+    if !@birds && periodic_chance(25, 30)
+      spawn_birds
+    end
+  end
+
+  # +percentage+ chance of something happening every +seconds+ seconds.
+  def periodic_chance(percentage, seconds)
+    @ticks > 0 && @ticks % seconds.seconds == 0 && rand < (percentage / 100)
   end
 
   def release_wave
@@ -175,63 +158,32 @@ class ControllerGame
     ac = Aircraft.new(position: pos, **type)
     @aircraft << ac
 
-    # Find all runways of the appropriate type, we'll need these if the
-    # aircraft is emergency or NORDO
-    available_runways = @map.runways.select { |r| r.type == ac.runway_type }
-
     # 10% of aircraft are emergency aircraft, but one can't spawn if a
     # NORDO aircraft is on-screen
     set_emergency = !@aircraft.any?(&:nordo) && rand < 0.1
-
-    if set_emergency
-      nearest_runway = available_runways.min_by do |r|
-        Geometry.distance(r.position, pos)
-      end
-
-      # How long will it take to reach the nearest runway?
-      # This is calculated in 2 legs, from spawn to the edge of the screen, then from
-      # edge of the screen to the runway. That way if the aircraft is spawned going
-      # the "wrong way" before the player is able to redirect it, the player isn't
-      # penalized.
-      spawn_to_edge = Geometry.distance(pos, ac.entry_point)
-      edge_to_runway = Geometry.distance(ac.entry_point, nearest_runway.position)
-      seconds_to_reach = (spawn_to_edge + edge_to_runway) / ac.speed
-
-      # If the aircraft spawns toward the departure end of the runway, that is,
-      # traveling close to opposite the runway heading, it will have to make
-      # a turn in order to land, so we'll give it a few more seconds if it's
-      # more than perpendicular to the runway (this doesn't matter for VTOL)
-      unless ac.vtol
-        reciprocal = (nearest_runway.heading + 180) % 360
-        # Smallest angular difference from runway heading
-        delta = (ac.course - nearest_runway.heading) % 360
-        # Normalize to [-180, 180]
-        delta -= 360 if delta > 180
-        # If the aircraft is facing closer to reciprocal than to original heading,
-        # and it's more than 90° away from the runway heading
-        if delta.abs > 90 && ((ac.course - reciprocal) % 360).abs < 90
-          seconds_to_reach += 3
-        end
-      end
-
-      # Set the timer with a little extra time
-      ac.emergency = (seconds_to_reach + EMERGENCY_TIME_BUFFER).seconds
-    end
+    ac.declare_emergency(@map.runways) if set_emergency
 
     # NORDO aircraft have a 2% chance to spawn (and emergency aircraft spawning
     # has priority). Also can't spawn a NORDO aircraft when an emergency
     # aircraft is on-screen
-    set_nordo = !ac.emergency && !@aircraft.any?(&:emergency) && rand < 0.02
+    if !ac.emergency && !@aircraft.any?(&:emergency) && rand < 0.02
+      # Find all runways of the appropriate type
+      available_runways = @map.runways.select { |r| r.type == ac.runway_type }
 
-    if set_nordo
       ac.nordo = true
       ac.pathfind_to(available_runways.sample)
     end
 
     # NORDO aircraft have no incoming notification
     unless ac.nordo
-      play_sound(set_emergency ? :emergency_spawn : :aircraft_spawn)
+      play_sound(set_emergency ? :emergency : :aircraft_spawn)
     end
+  end
+
+  def spawn_birds
+    # Just don't spawn if there's no suitable position
+    return unless (pos = find_spawn_position)
+    @birds = Birds.new(pos)
   end
 
   # Returns a random spawn position that is a reasonable distance away from
@@ -273,16 +225,42 @@ class ControllerGame
     end
   end
 
+  def handle_birds
+    @birds.tick
+
+    # Handle bird collisions
+    @aircraft.reject(&:emergency).each do |ac|
+      if Geometry.intersect_circle?(ac.hitbox, @birds.hitbox)
+        ac.declare_emergency(@map.runways)
+        ac.birdstrike = true
+
+        # Departing aircraft must return and NORDO aircraft become
+        # controllable (guess they decided to get their head out of
+        # their ass and call when they had an emergency)
+        ac.departing = nil if ac.departing
+        ac.nordo = false if ac.nordo
+
+        play_sound(:emergency)
+      end
+    end
+
+    # Delete the birds when they go offscreen
+    unless @birds.offscreen? || @birds.rect.intersect_rect?(@screen)
+      @birds = nil
+    end
+  end
+
   def handle_scoring
     # Score and cull landed/departed aircraft
     landed = @aircraft.select(&:landed)
     if landed.any?
       emergencies = landed.count(&:landed_emergency)
+      birdstrikes = landed.count(&:birdstrike)
       nordos = landed.count(&:nordo)
       normal_landings = landed.size - emergencies - nordos
 
       @score[:land] += normal_landings
-      @score[:emergency] += emergencies
+      @score[:emergency] += emergencies - birdstrikes
       @score[:nordo] += nordos
 
       play_sound(:nordo_land) if nordos > 0
@@ -301,6 +279,45 @@ class ControllerGame
 
   def score
     @score.reduce(0) { |sum, (type, n)| sum + (SCORE_VALUE[type] * n) }
+  end
+
+  def handle_game_over
+    # Game over if there's a collision
+    @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
+    if @collisions.any?
+      @game_over = :collision
+      play_sound(:collision)
+      return
+    end
+
+    # Game over if an emergency aircraft timer reaches zero
+    if @aircraft.select(&:emergency).any? { |ac| ac.emergency <= 0 }
+      @game_over = :emergency
+      play_sound(:collision)
+      return
+    end
+
+    # Decrement departure timers, game over if one reaches zero
+    @map.runways.select(&:departure).each do |runway|
+      runway.departure[:timer] -= 1 unless @game_over
+      if runway.departure[:timer] <= 0
+        @game_over = :departure
+        play_sound(:departure_failure)
+        return
+      end
+    end
+  end
+
+  def handle_warnings
+    # Find warnings and play sound if there's a new one
+    warnings_orig = @warnings.dup
+    @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))
+    # If one warning disappears the same frame as a new one appears this
+    # won't play a new sound, but I can't think of a better way to
+    # do this without extensive modification to the warning system
+    if @warnings.size > warnings_orig.size
+      play_sound(:warning)
+    end
   end
 
   def find_circle_collisions(circles)

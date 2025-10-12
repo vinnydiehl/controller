@@ -1,7 +1,8 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
-                    landed nordo type speed runway_type vectoring vtol]
-  attr_reader *%i[course departing departed entry_point
+                    landed nordo type speed runway_type vectoring
+                    vtol departing birdstrike]
+  attr_reader *%i[course departed entry_point
                   incoming_marker_angle landed_emergency]
 
   # Lines for the edges of the screen, the order of these matters
@@ -171,6 +172,55 @@ class Aircraft
   def set_speed(speed)
     @speed = speed
     @speed_px = @speed / 60
+  end
+
+  def declare_emergency(runways)
+    # Find all runways of the appropriate type
+    available_runways = runways.select { |r| r.type == @runway_type }
+
+    nearest_runway = available_runways.min_by do |r|
+      Geometry.distance(r.position, @position)
+    end
+
+    incoming = !@incoming_point_on_screen
+
+    # How long will it take to reach the nearest runway?
+    distance = if incoming
+      # For incoming aircraft this is calculated in 2 legs, from spawn to the
+      # edge of the screen, then from edge of the screen to the runway. That way
+      # if the aircraft is spawned going the "wrong way" before the player is
+      # able to redirect it, the player isn't penalized.
+      spawn_to_edge = Geometry.distance(@position, @entry_point)
+      edge_to_runway = Geometry.distance(@entry_point, nearest_runway.position)
+      spawn_to_edge + edge_to_runway
+    else
+      # If the aircraft is already
+      Geometry.distance(@position, nearest_runway.position)
+    end
+    seconds_to_reach = distance / @speed
+
+    # If the aircraft spawns toward the departure end of the runway, that is,
+    # traveling close to opposite the runway heading, it will have to make
+    # a turn in order to land, so we'll give it a few more seconds if it's
+    # more than perpendicular to the runway (this doesn't matter for VTOL)
+    unless @vtol
+      reciprocal = (nearest_runway.heading + 180) % 360
+      # Smallest angular difference from runway heading
+      delta = (@course - nearest_runway.heading) % 360
+      # Normalize to [-180, 180]
+      delta -= 360 if delta > 180
+      # If the aircraft is facing closer to reciprocal than to original heading,
+      # and it's more than 90° away from the runway heading
+      if delta.abs > 90 && ((@course - reciprocal) % 360).abs < 90
+        seconds_to_reach += 3
+      end
+    end
+
+    # Give the player some time to react if the emergency happens on-screen
+    seconds_to_reach += 5 unless incoming
+
+    # Set the timer with a little extra time
+    @emergency = (seconds_to_reach + EMERGENCY_TIME_BUFFER).seconds
   end
 
   # Make the aircraft smoothly pathfind towards +runway+ and land there.
