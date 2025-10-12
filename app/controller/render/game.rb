@@ -71,11 +71,40 @@ class ControllerGame
   end
 
   def render_warnings
+    size = 96
+    pulse_speed = 0.1
+
+    # Sine wave from 0-1
+    raw = (Math.sin(@ticks * pulse_speed) * 0.5 + 0.5)
+    # Cubic ease-in-out
+    scale = 3 * raw**2 - 2 * raw**3
+
+    @outputs[:warning].w ||= size
+    @outputs[:warning].h ||= size
+    @outputs[:warning].primitives << {
+      x: 0, y: 0, w: size, h: size,
+      path: "sprites/symbology/warning/bg.png",
+      **WARNING_COLORS[:background],
+    }
+    @outputs[:warning].primitives << {
+      x: size / 2, y: size / 2,
+      # Ease the blur
+      w: size * scale, h: size * scale,
+      path: "sprites/symbology/warning/blur.png",
+      anchor_x: 0.5, anchor_y: 0.5,
+      **WARNING_COLORS[:blur],
+    }
+    @outputs[:warning].primitives << {
+      x: 0, y: 0, w: size, h: size,
+      path: "sprites/symbology/warning/border.png",
+      **WARNING_COLORS[:border],
+    }
+
     @primitives << @warnings.map do |warning|
       {
         **circle_to_rect(warning),
-        path: "sprites/map_editor/circle.png",
-        **COLLISION_COLOR,
+        path: :warning,
+        a: 150,
       }
     end
   end
