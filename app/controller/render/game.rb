@@ -80,8 +80,8 @@ class ControllerGame
     # Cubic ease-in-out
     scale = 3 * raw**2 - 2 * raw**3
 
-    @outputs[:warning].w ||= size
-    @outputs[:warning].h ||= size
+    @outputs[:warning].w = size
+    @outputs[:warning].h = size
     @outputs[:warning].primitives << {
       x: 0, y: 0, w: size, h: size,
       path: "sprites/symbology/warning/bg.png",
