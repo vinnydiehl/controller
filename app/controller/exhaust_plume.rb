@@ -1,8 +1,8 @@
 class ExhaustPlume
   EXHAUST_PLUME_FRAMES = 16
 
-  def initialize(start_tick, position, angle)
-    @start_tick, @position, @angle = start_tick, position, angle
+  def initialize(start_tick, type, position, angle)
+    @start_tick, @type, @position, @angle = start_tick, type, position, angle
   end
 
   def sprite
@@ -18,7 +18,7 @@ class ExhaustPlume
       x: @position.x, y: @position.y,
       w: AIRCRAFT_SIZE, h: AIRCRAFT_SIZE,
       anchor_x: 0.5, anchor_y: 0.5,
-      path: "sprites/aircraft/exhaust.png",
+      path: "sprites/aircraft/exhaust_#{@type}.png",
       angle: @angle,
       tile_x: frame_index * AIRCRAFT_SIZE,
       tile_w: AIRCRAFT_SIZE, tile_h: AIRCRAFT_SIZE,

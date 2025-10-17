@@ -4,30 +4,35 @@ AIRCRAFT_TYPES = [
     speed: 30,
     runway: :blue,
     vtol: false,
+    exhaust: :multi,
   },
   {
     type: :turboprop,
     speed: 20,
     runway: :red,
     vtol: false,
+    exhaust: :multi,
   },
   {
     type: :single_engine_piston,
     speed: 15,
     runway: :yellow,
     vtol: false,
+    exhaust: :single,
   },
   {
     type: :seaplane,
     speed: 15,
     runway: :green,
     vtol: false,
+    exhaust: :multi,
   },
   {
     type: :helicopter,
     speed: 10,
     runway: :orange,
     vtol: true,
+    exhaust: :single,
   },
 ]
 

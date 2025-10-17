@@ -30,11 +30,13 @@ class Aircraft
     },
   ]
 
-  def initialize(position:, type:, speed:, runway:, vtol:,
+  def initialize(position:, type:, speed:, runway:, vtol:, exhaust:,
                  course: nil, departing: nil, size: AIRCRAFT_SIZE,
                  spawned_at: Kernel.tick_count)
-    @position, @type, @runway_type, @vtol, @course, @departing, @size, @spawned_at =
-      position, type, runway, vtol, course, departing, size, spawned_at
+    @position, @type, @runway_type, @vtol, @exhaust,
+      @course, @departing, @size, @spawned_at =
+        position, type, runway, vtol, exhaust,
+          course, departing, size, spawned_at
 
     set_speed(speed)
 
@@ -533,7 +535,7 @@ class Aircraft
     return if @size < AIRCRAFT_SIZE
 
     if (Kernel.tick_count - @spawned_at) % EXHAUST_PLUME_INTERVAL == 0
-      ExhaustPlume.new(Kernel.tick_count, @position, @course)
+      ExhaustPlume.new(Kernel.tick_count, @exhaust, @position, @course)
     end
   end
 
