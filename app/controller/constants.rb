@@ -143,3 +143,5 @@ GAME_OVER = {
   emergency: "An emergency aircraft crashed!",
   departure: "A departure is running late!",
 }
+
+EXHAUST_PLUME_INTERVAL = 5.seconds

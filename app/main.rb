@@ -4,7 +4,7 @@ SCENES = %w[game map_editor map_select_menu pause_menu]
 %w[tiled/tiled json input].each { |f| require "lib/#{f}.rb" }
 
 %w[constants colors button controller
-   aircraft audio birds input map
+   aircraft audio birds exhaust_plume input map
    menu runway].each { |f| require "app/controller/#{f}.rb" }
 
 require "app/controller/render/shared.rb"

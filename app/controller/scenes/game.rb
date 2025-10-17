@@ -5,6 +5,7 @@ class ControllerGame
     @game_over = nil
 
     @aircraft = []
+    @exhaust_plumes = []
 
     @map.runways.each(&:reset)
 
@@ -83,7 +84,14 @@ class ControllerGame
 
     handle_spawns unless @dev_mode
 
-    @aircraft.each(&:tick)
+    @aircraft.each do |ac|
+      ac.tick
+      if (exhaust_plume = ac.exhaust_plume)
+        @exhaust_plumes << exhaust_plume
+      end
+    end
+    @exhaust_plumes.reject!(&:dead?)
+
     handle_birds if @birds
 
     handle_scoring

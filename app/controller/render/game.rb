@@ -15,6 +15,7 @@ class ControllerGame
 
     render_birds if @birds
 
+    render_exhaust_plumes
     render_paths
     render_aircraft
 
@@ -111,6 +112,10 @@ class ControllerGame
 
   def render_birds
     @primitives << @birds.sprite
+  end
+
+  def render_exhaust_plumes
+    @primitives << @exhaust_plumes.map(&:sprite)
   end
 
   def render_paths

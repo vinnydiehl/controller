@@ -529,6 +529,14 @@ class Aircraft
     end
   end
 
+  def exhaust_plume
+    return if @size < AIRCRAFT_SIZE
+
+    if (Kernel.tick_count - @spawned_at) % EXHAUST_PLUME_INTERVAL == 0
+      ExhaustPlume.new(Kernel.tick_count, @position, @course)
+    end
+  end
+
   def holding?
     !!@holding
   end
