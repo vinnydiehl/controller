@@ -76,6 +76,9 @@ class ControllerGame
             end
 
             runway.depart
+            # Clear departure warning
+            @warnings[:departure][@map.runways.find_index(runway)] = false
+
             play_sound(:takeoff)
           end
         end

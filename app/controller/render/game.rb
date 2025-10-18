@@ -5,13 +5,14 @@ class ControllerGame
     render_dev_mode_label if @dev_mode
 
     render_runways
-    render_departures
 
     if @collisions.any?
       render_collisions
-    elsif @warnings.any?
+    elsif @warnings.values.flatten.any?
       render_warnings
     end
+
+    render_departures
 
     render_birds if @birds
 
@@ -101,9 +102,27 @@ class ControllerGame
       **WARNING_COLORS[:border],
     }
 
-    @primitives << @warnings.map do |warning|
+    render_collision_warnings if @warnings[:collision].any?
+    render_departure_warnings if @warnings[:departure].values.any?(true)
+  end
+
+  def render_collision_warnings
+    @primitives << @warnings[:collision].map do |warning|
       {
         **circle_to_rect(warning),
+        path: :warning,
+        a: 150,
+      }
+    end
+  end
+
+  def render_departure_warnings
+    @warnings[:departure].select { |_, v| v }.each_key do |i|
+      hold_short_point = @map.runways[i].hold_short_point
+      @primitives << {
+        x: hold_short_point.x, y: hold_short_point.y,
+        w: DEPARTURE_WARNING_SIZE, h: DEPARTURE_WARNING_SIZE,
+        anchor_x: 0.5, anchor_y: 0.5,
         path: :warning,
         a: 150,
       }

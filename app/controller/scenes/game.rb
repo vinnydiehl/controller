@@ -20,7 +20,10 @@ class ControllerGame
     @wave_spawn_timer = 0
 
     @collisions = []
-    @warnings = []
+    @warnings = {
+      collision: [],
+      departure: @map.runways.size.times.map { |i| [i, false] }.to_h,
+    }
 
     # Game over modal
     @game_over_modal = Layout.rect(
@@ -318,14 +321,26 @@ class ControllerGame
     end
   end
 
+  # Find warnings and play a sound if there's a new one
   def handle_warnings
-    # Find warnings and play sound if there's a new one
-    warnings_orig = @warnings.dup
-    @warnings = find_circle_collisions(@aircraft.map(&:warning_hitbox))
+    warnings_orig = @warnings.deep_dup
+
+    # Collision warnings
+    @warnings[:collision] = find_circle_collisions(@aircraft.map(&:warning_hitbox))
+
+    # Departure warnings
+    @map.runways.each_with_index do |runway, i|
+      if runway.departure && runway.departure.timer <= DEPARTURE_WARNING_TIME.seconds
+        @warnings[:departure][i] = true
+      end
+    end
+
     # If one warning disappears the same frame as a new one appears this
     # won't play a new sound, but I can't think of a better way to
     # do this without extensive modification to the warning system
-    if @warnings.size > warnings_orig.size
+    if (@warnings[:collision].size > warnings_orig[:collision].size) ||
+       (@warnings[:departure].values.count(true) >
+        warnings_orig[:departure].values.count(true))
       play_sound(:warning)
     end
   end

@@ -122,7 +122,7 @@ class Runway
       size_px: HOLD_SHORT_LABEL_SIZE,
       anchor_x: 0.5,
       anchor_y: 0.5,
-      **(seconds > 10 ? WHITE : RED),
+      **(seconds > DEPARTURE_WARNING_TIME ? WHITE : RED),
     }
   end
 
