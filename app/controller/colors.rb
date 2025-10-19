@@ -35,14 +35,12 @@ INCOMING_EMERGENCY_COLOR = {
   r: 125, g: 22, b: 22,
 }
 
-COLLISION_COLOR = {
-  **RED, a: 150,
-}
 WARNING_COLORS = {
   background: { r: 248, g: 84, b: 84 },
   blur: { r: 206, g: 36, b: 36 },
   border: { r: 158, g: 27, b: 27 },
 }
+WARNING_ALPHA = 150
 
 INPUT_COLORS = {
   background_color: grayscale(80),

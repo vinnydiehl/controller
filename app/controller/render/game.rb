@@ -8,7 +8,7 @@ class ControllerGame
 
     if @collisions.any?
       render_collisions
-    elsif @warnings.values.flatten.any?
+    elsif @warnings[:collision].any? || @warnings[:departure].values.any?(true)
       render_warnings
     end
 
@@ -62,17 +62,7 @@ class ControllerGame
     @primitives << @map.runways.select(&:departure).map(&:hold_short_label)
   end
 
-  def render_collisions
-    @primitives << @collisions.map do |collision|
-      {
-        **circle_to_rect(collision.dup.tap { |c| c.radius *= 2 }),
-        path: "sprites/map_editor/circle.png",
-        **COLLISION_COLOR,
-      }
-    end
-  end
-
-  def render_warnings
+  def draw_warning_circle
     size = 96
     pulse_speed = 0.1
 
@@ -101,6 +91,22 @@ class ControllerGame
       path: "sprites/symbology/warning/border.png",
       **WARNING_COLORS[:border],
     }
+  end
+
+  def render_collisions
+    draw_warning_circle
+
+    @primitives << @collisions.map do |collision|
+      {
+        **circle_to_rect(collision.dup.tap { |c| c.radius *= 2 }),
+        path: :warning,
+        a: WARNING_ALPHA,
+      }
+    end
+  end
+
+  def render_warnings
+    draw_warning_circle
 
     render_collision_warnings if @warnings[:collision].any?
     render_departure_warnings if @warnings[:departure].values.any?(true)
@@ -111,7 +117,7 @@ class ControllerGame
       {
         **circle_to_rect(warning),
         path: :warning,
-        a: 150,
+        a: WARNING_ALPHA,
       }
     end
   end
@@ -124,7 +130,7 @@ class ControllerGame
         w: DEPARTURE_WARNING_SIZE, h: DEPARTURE_WARNING_SIZE,
         anchor_x: 0.5, anchor_y: 0.5,
         path: :warning,
-        a: 150,
+        a: WARNING_ALPHA,
       }
     end
   end
