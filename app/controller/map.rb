@@ -56,7 +56,6 @@ class ControllerGame
       raise StandardError.new("Map image/TMX not found.")
     end
 
-
     if @args.gtk.stat_file("#{filename}.dat")
       map_data = Argonaut::JSON.parse(
         @args.gtk.read_file("#{filename}.dat"),
