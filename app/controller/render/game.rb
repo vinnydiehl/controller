@@ -17,10 +17,15 @@ class ControllerGame
 
     render_departures
 
-    render_birds if @birds
+    if @birds
+      render_birds_shadows
+      render_birds
+    end
+
+    render_paths
 
     render_exhaust_plumes
-    render_paths
+    render_aircraft_shadows
     render_aircraft
 
     render_incoming_alerts
@@ -182,6 +187,15 @@ class ControllerGame
     @primitives << apply_screen_shake(@birds.sprite)
   end
 
+  def render_birds_shadows
+    @primitives << apply_screen_shake(
+      @birds.sprite.merge(a: SHADOW_ALPHA).tap do |sprite|
+        sprite.x += SHADOW_OFFSET.x
+        sprite.y -= SHADOW_OFFSET.y
+      end
+    )
+  end
+
   def render_exhaust_plumes
     @primitives << @exhaust_plumes.select(&:sprite).map do |plume|
       apply_screen_shake(plume.sprite)
@@ -209,6 +223,22 @@ class ControllerGame
   def render_aircraft
     @primitives << @aircraft.map(&:primitives).flatten.map do |p|
       apply_screen_shake(p)
+    end
+  end
+
+  def render_aircraft_shadows
+    @primitives << @aircraft.map do |ac|
+      min_size = ac.departing ? DEPARTURE_SIZE : LANDING_SIZE
+
+      apply_screen_shake(
+        ac.sprite.merge(**BLACK, a: SHADOW_ALPHA).tap do |sprite|
+          # Grow/shrink sprite during takeoff/landing
+          scale = (sprite.w - min_size) / (AIRCRAFT_SIZE - min_size)
+
+          sprite.x += SHADOW_OFFSET.x * scale
+          sprite.y -= SHADOW_OFFSET.y * scale
+        end
+      )
     end
   end
 
