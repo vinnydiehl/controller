@@ -23,6 +23,14 @@ class Map
     end
   end
 
+  def margin
+    if @type == :tiled
+      @tmx.layers.first.sprites.first.w
+    else
+      40
+    end
+  end
+
   def to_h
     { name: @name, id: @id, runways: @runways.map(&:to_h) }
   end

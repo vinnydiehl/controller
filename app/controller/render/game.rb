@@ -1,34 +1,76 @@
 class ControllerGame
-  def render_game
-    render_map
-    render_score
-    render_dev_mode_label if @dev_mode
+  def render_game_init
+    reset_camera
+  end
 
-    render_runways
+  def render_game
+    calc_camera
+
+    draw_map
+    draw_runways
+    render_map
+
+    draw_score
+    draw_dev_mode_label if @dev_mode
 
     if @collisions.any?
-      render_collisions
+      draw_collisions
     elsif @warnings[:collision].any? || @warnings[:departure].values.any?(true)
-      render_warnings
+      draw_warnings
     end
 
-    render_departures
+    draw_departures
 
-    render_birds if @birds
+    draw_birds if @birds
 
-    render_exhaust_plumes
-    render_paths
-    render_aircraft
+    draw_exhaust_plumes
+    draw_paths
+    draw_aircraft
 
-    render_incoming_alerts
+    draw_incoming_alerts
 
-    if @game_over
+    render_scene
+
+    if @game_over && @camera[:trauma] == 0
       render_game_over_modal
     end
   end
 
-  def render_score
-    @primitives << Layout.point(
+  def render_scene
+    @primitives << {
+      x: @camera[:x_offset],
+      y: @camera[:y_offset],
+      w: @screen.w, h: @screen.h,
+      angle: @camera[:angle],
+      path: :scene,
+    }
+  end
+
+  # Apply screen shake
+  def calc_camera
+    next_camera_angle = 180.0 / 20.0 * @camera.trauma**2
+    next_offset = 100.0 * @camera.trauma**2
+
+    # Ensure that the camera angle always switches from positive to negative and
+    # vice versa which gives the effect of shaking back and forth
+    @camera[:angle] = @camera[:angle] > 0 ? next_camera_angle * -1 : next_camera_angle
+
+    @camera[:x_offset] = next_offset.randomize(:sign, :ratio)
+    @camera[:y_offset] = next_offset.randomize(:sign, :ratio)
+
+    # Gracefully degrade trauma
+    @camera[:trauma] *= 0.97
+    if @camera[:trauma] < 0.05
+      @camera[:trauma] = 0
+    end
+  end
+
+  def shake_screen
+    @camera.trauma = 0.5
+  end
+
+  def draw_score
+    @outputs[:scene].primitives << Layout.point(
       row: -0.75,
       col: -0.5,
       row_anchor: 0.5,
@@ -42,8 +84,8 @@ class ControllerGame
     )
   end
 
-  def render_dev_mode_label
-    @primitives << Layout.point(
+  def draw_dev_mode_label
+    @outputs[:scene].primitives << Layout.point(
       row: 12.25,
       col: 23.25,
       row_anchor: 0.5,
@@ -57,9 +99,9 @@ class ControllerGame
     )
   end
 
-  def render_departures
-    @primitives << @map.runways.select(&:departure).map(&:departure_primitives)
-    @primitives << @map.runways.select(&:departure).map(&:hold_short_label)
+  def draw_departures
+    @outputs[:scene].primitives << @map.runways.select(&:departure).map(&:departure_primitives)
+    @outputs[:scene].primitives << @map.runways.select(&:departure).map(&:hold_short_label)
   end
 
   def draw_warning_circle
@@ -93,10 +135,10 @@ class ControllerGame
     }
   end
 
-  def render_collisions
+  def draw_collisions
     draw_warning_circle
 
-    @primitives << @collisions.map do |collision|
+    @outputs[:scene].primitives << @collisions.map do |collision|
       {
         **circle_to_rect(collision.dup.tap { |c| c.radius *= 2 }),
         path: :warning,
@@ -105,15 +147,15 @@ class ControllerGame
     end
   end
 
-  def render_warnings
+  def draw_warnings
     draw_warning_circle
 
-    render_collision_warnings if @warnings[:collision].any?
-    render_departure_warnings if @warnings[:departure].values.any?(true)
+    draw_collision_warnings if @warnings[:collision].any?
+    draw_departure_warnings if @warnings[:departure].values.any?(true)
   end
 
-  def render_collision_warnings
-    @primitives << @warnings[:collision].map do |warning|
+  def draw_collision_warnings
+    @outputs[:scene].primitives << @warnings[:collision].map do |warning|
       {
         **circle_to_rect(warning),
         path: :warning,
@@ -122,10 +164,10 @@ class ControllerGame
     end
   end
 
-  def render_departure_warnings
+  def draw_departure_warnings
     @warnings[:departure].select { |_, v| v }.each_key do |i|
       hold_short_point = @map.runways[i].hold_short_point
-      @primitives << {
+      @outputs[:scene].primitives << {
         x: hold_short_point.x, y: hold_short_point.y,
         w: DEPARTURE_WARNING_SIZE, h: DEPARTURE_WARNING_SIZE,
         anchor_x: 0.5, anchor_y: 0.5,
@@ -135,30 +177,30 @@ class ControllerGame
     end
   end
 
-  def render_birds
-    @primitives << @birds.sprite
+  def draw_birds
+    @outputs[:scene].primitives << @birds.sprite
   end
 
-  def render_exhaust_plumes
-    @primitives << @exhaust_plumes.map(&:sprite)
+  def draw_exhaust_plumes
+    @outputs[:scene].primitives << @exhaust_plumes.map(&:sprite)
   end
 
-  def render_paths
-    @primitives << @aircraft.flat_map do |ac|
+  def draw_paths
+    @outputs[:scene].primitives << @aircraft.flat_map do |ac|
       ac.vectoring ? ac.dotted_path_primitives : ac.path_primitives
     end
   end
 
-  def render_aircraft
-    @primitives << @aircraft.map(&:primitives)
+  def draw_aircraft
+    @outputs[:scene].primitives << @aircraft.map(&:primitives)
   end
 
-  def render_incoming_alerts
+  def draw_incoming_alerts
     @aircraft.reject { |ac| ac.rect.intersect_rect?(@screen) || ac.departing || ac.nordo }
-             .each_with_index { |ac, i| render_incoming_alert(ac, i) }
+             .each_with_index { |ac, i| draw_incoming_alert(ac, i) }
   end
 
-  def render_incoming_alert(aircraft, id)
+  def draw_incoming_alert(aircraft, id)
     target = "incoming_alert_#{id}"
     @outputs[target].w = 60
     @outputs[target].h = 40
@@ -174,7 +216,7 @@ class ControllerGame
       aircraft.sprite.merge(x: 20 + ac_padding, y: ac_padding, angle: 0),
     ]
 
-    @primitives << {
+    @outputs[:scene].primitives << {
       x: aircraft.entry_point.x, y: aircraft.entry_point.y,
       w: 60, h: 40,
       angle: aircraft.incoming_marker_angle,

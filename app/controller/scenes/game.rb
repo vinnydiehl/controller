@@ -299,6 +299,7 @@ class ControllerGame
     @collisions = find_circle_collisions(@aircraft.map(&:hitbox))
     if @collisions.any?
       @game_over = :collision
+      shake_screen
       play_sound(:collision)
       return
     end
@@ -306,6 +307,7 @@ class ControllerGame
     # Game over if an emergency aircraft timer reaches zero
     if @aircraft.select(&:emergency).any? { |ac| ac.emergency <= 0 }
       @game_over = :emergency
+      shake_screen
       play_sound(:collision)
       return
     end

@@ -119,6 +119,13 @@ class ControllerGame
   def load_selected_map
     @map = selected_map
     load_aircraft_types
+
+    # Set map size to include margins (there is a 1-tile margin around
+    # each map for screen shake)
+    d = @map.margin * 2
+    @outputs[:map].w = @screen.w + d
+    @outputs[:map].h = @screen.h + d
+
     play_sound(:start_game)
     set_scene(:game)
   end

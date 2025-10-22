@@ -1,7 +1,12 @@
 class ControllerGame
+  def render_map_editor_init
+    reset_camera
+  end
+
   def render_map_editor
+    draw_map
+    draw_runways
     render_map
-    render_runways
 
     # There's a frame during saving where we need to capture a thumbnail.
     # We only want the map and runways present for that.

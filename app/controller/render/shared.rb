@@ -8,18 +8,18 @@ class ControllerGame
     }
   end
 
-  def render_map
-    @primitives << @map.sprite
+  def draw_map
+    @outputs[:map] << @map.sprite
   end
 
-  def render_runways
-    @map.runways.each_with_index { |r, i| render_runway(r, i) }
+  def draw_runways
+    @map.runways.each_with_index { |r, i| draw_runway(r, i) }
   end
 
   # Renders an individual runway. +id+ needs to be unique, we can just
   # use the index (since names might not be set or might be the same
   # it's unwise to use that).
-  def render_runway(runway, id)
+  def draw_runway(runway, id)
     target = "runway_#{id}"
 
     @outputs[target].w = runway.length
@@ -97,13 +97,35 @@ class ControllerGame
 
     anchor_x = (RWY_WIDTH / 2) / runway.length
 
-    @primitives << {
-      x: runway.position.x, y: runway.position.y,
+    @outputs[:map] << {
+      x: runway.position.x + @map.margin,
+      y: runway.position.y + @map.margin,
       w: runway.length, h: RWY_WIDTH,
       angle: runway.heading,
       anchor_x: anchor_x, anchor_y: 0.5,
       angle_anchor_x: anchor_x, angle_anchor_y: 0.5,
       path: target,
+    }
+  end
+
+  def render_map
+    d = @map.margin * 2
+    @primitives << {
+      x: @cx - @camera[:x_offset],
+      y: @cy - @camera[:y_offset],
+      w: @screen.w + d, h: @screen.h + d,
+      anchor_x: 0.5, anchor_y: 0.5,
+      angle: @camera[:angle],
+      path: :map,
+    }
+  end
+
+  def reset_camera
+    @camera = {
+      trauma: 0,
+      angle: 0,
+      x_offset: 0,
+      y_offset: 0,
     }
   end
 end
