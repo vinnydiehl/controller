@@ -184,6 +184,10 @@ class ControllerGame
     if @kb.key_down.d
       @dev_mode = !@dev_mode
     end
+
+    if @kb.key_down_or_held?(:ctrl) && @kb.key_down.s
+      shake_screen
+    end
   end
 
   def mouse_coords
