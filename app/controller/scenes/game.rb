@@ -89,10 +89,23 @@ class ControllerGame
 
     @aircraft.each do |ac|
       ac.tick
+
       if (exhaust_plume = ac.exhaust_plume)
         @exhaust_plumes << exhaust_plume
       end
+
+      # If an incoming aircraft holds for too long, it declares an emergency
+      # for low fuel
+      if !ac.departing && !ac.emergency && !ac.landed_emergency &&
+         @ticks - ac.spawned_at >= FUEL_REMAINING
+        ac.declare_emergency(@map.runways)
+        # Set this so no points are earned for landing it
+        ac.fuel_critical = true
+
+        play_sound(:emergency)
+      end
     end
+
     @exhaust_plumes.reject!(&:dead?)
 
     handle_birds if @birds
@@ -269,11 +282,12 @@ class ControllerGame
     if landed.any?
       emergencies = landed.count(&:landed_emergency)
       birdstrikes = landed.count(&:birdstrike)
+      fuel_criticals = landed.count(&:fuel_critical)
       nordos = landed.count(&:nordo)
       normal_landings = landed.size - emergencies - nordos
 
       @score[:land] += normal_landings
-      @score[:emergency] += emergencies - birdstrikes
+      @score[:emergency] += emergencies - birdstrikes - fuel_criticals
       @score[:nordo] += nordos
 
       play_sound(:nordo_land) if nordos > 0

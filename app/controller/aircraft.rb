@@ -1,9 +1,9 @@
 class Aircraft
   attr_accessor *%i[position path cleared_to_land emergency
                     landed nordo type speed runway_type vectoring
-                    vtol departing birdstrike]
+                    vtol departing birdstrike fuel_critical]
   attr_reader *%i[course departed entry_point
-                  incoming_marker_angle landed_emergency]
+                  incoming_marker_angle landed_emergency spawned_at]
 
   # Lines for the edges of the screen, the order of these matters
   # for setting the angle of the incoming marker

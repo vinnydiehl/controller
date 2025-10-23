@@ -157,3 +157,7 @@ EXHAUST_PLUME_INTERVAL = 5.seconds
 
 SHADOW_OFFSET = { x: 10, y: 8 }
 SHADOW_ALPHA = 50
+
+# If an incoming aircraft is present for longer than this,
+# they'll declare an emergency for low fuel
+FUEL_REMAINING = 5.minutes
