@@ -4,7 +4,6 @@ class ControllerGame
   end
 
   def render_map_editor
-    draw_map
     render_map
     render_runways
 
