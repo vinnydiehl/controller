@@ -95,6 +95,10 @@ class ControllerGame
       # Cancel landing clearance
       @aircraft_redirecting.cleared_to_land = false
 
+      # Start runway glow animation
+      @runway_glow_start = @ticks
+      @runway_glow_type = @aircraft_redirecting.runway_type
+
       play_sound(:click_aircraft)
     end
 
@@ -125,6 +129,8 @@ class ControllerGame
 
               ac.finalize_path
 
+              reset_runway_glow
+
               play_sound(:clear_for_landing)
 
               return
@@ -147,6 +153,7 @@ class ControllerGame
 
     if @mouse.key_up.left && (ac = @aircraft_redirecting)
       ac.finalize_path
+      reset_runway_glow
     end
 
     # Right click to toggle a hold

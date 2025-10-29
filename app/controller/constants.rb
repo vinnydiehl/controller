@@ -161,3 +161,9 @@ SHADOW_ALPHA = 50
 # If an incoming aircraft is present for longer than this,
 # they'll declare an emergency for low fuel
 FUEL_REMAINING = 5.minutes
+
+# Runway color animation
+RUNWAY_GLOW_CYCLE = 2.seconds
+RUNWAY_FADE_SPEED = 0.2.seconds
+RUNWAY_MAX_GLOW = 0.5
+RUNWAY_GLOW_DELAY = 0.2.seconds

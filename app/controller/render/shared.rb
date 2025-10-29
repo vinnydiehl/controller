@@ -73,12 +73,13 @@ class ControllerGame
     end
 
     # Outline
+    glow = @runway_glow ? @runway_glow[runway.type] : 0
     if runway.helipad
       @outputs[target].primitives << {
         x: 0, y: 0,
         w: RWY_WIDTH, h: RWY_WIDTH,
         path: "sprites/runway/outline/heli_#{runway.helipad}.png",
-        **RUNWAY_COLORS[runway.type],
+        **RUNWAY_COLORS[runway.type].glow(glow),
       }
     else
       @outputs[target].primitives << [
@@ -87,21 +88,21 @@ class ControllerGame
           x: 0, y: 0,
           w: RWY_WIDTH, h: RWY_WIDTH,
           path: "sprites/runway/outline/threshold.png",
-          **RUNWAY_COLORS[runway.type],
+          **RUNWAY_COLORS[runway.type].glow(glow),
         },
         # Middle
         {
           x: RWY_WIDTH, y: 0,
           w: middle_length, h: RWY_WIDTH,
           path: "sprites/runway/outline/middle.png",
-          **RUNWAY_COLORS[runway.type],
+          **RUNWAY_COLORS[runway.type].glow(glow),
         },
         # Departure end
         {
           x: runway.length - RWY_WIDTH, y: 0,
           w: RWY_WIDTH, h: RWY_WIDTH,
           path: "sprites/runway/outline/der.png",
-          **RUNWAY_COLORS[runway.type],
+          **RUNWAY_COLORS[runway.type].glow(glow),
         },
       ]
     end

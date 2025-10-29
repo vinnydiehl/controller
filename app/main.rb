@@ -1,6 +1,6 @@
 SCENES = %w[game map_editor map_select_menu pause_menu]
 
-%w[numeric object symbol].each { |f|  require "lib/core_ext/#{f}.rb" }
+%w[hash numeric object symbol].each { |f|  require "lib/core_ext/#{f}.rb" }
 %w[tiled/tiled json input].each { |f| require "lib/#{f}.rb" }
 
 %w[constants colors button controller

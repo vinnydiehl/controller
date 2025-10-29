@@ -1,12 +1,17 @@
 class ControllerGame
   def render_game_init
     reset_camera
+
+    @runway_glow = @map.runways.map { |r| [r.type, 0] }.to_h
+    reset_runway_glow
   end
 
   def render_game
     calc_camera
 
     render_map
+
+    handle_runway_glow
     render_runways
 
     if @collisions.any?
@@ -68,6 +73,26 @@ class ControllerGame
 
       p.angle ||= 0
       p.angle += @camera[:angle]
+    end
+  end
+
+  def reset_runway_glow
+    @runway_glow_start, @runway_glow_type = nil, nil
+  end
+
+  def handle_runway_glow
+    if @runway_glow_type && @runway_glow_start
+      # Cycle the appropriate color in a sine wave
+      t = ((@ticks - @runway_glow_start - RUNWAY_GLOW_DELAY) / RUNWAY_GLOW_CYCLE) % 1
+      glow = ((Math.sin(t * Math::PI * 2) + 1) / 2) * RUNWAY_MAX_GLOW
+      @runway_glow[@runway_glow_type] = glow
+    else
+      # Fade all glow values smoothly back to 0 when inactive
+      @runway_glow.each do |type, value|
+        next if value.zero?
+        new_value = value - RUNWAY_MAX_GLOW / RUNWAY_FADE_SPEED
+        @runway_glow[type] = new_value.positive? ? new_value : 0
+      end
     end
   end
 
